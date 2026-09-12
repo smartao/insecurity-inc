@@ -57,4 +57,10 @@ Já existe uma AWS Organization com uma única conta isolada. Decisão: manter c
 
 ## Estrutura de pastas
 
-Ainda não definida — próximo passo do projeto.
+Uma pasta por capítulo (`NN-nome-do-capitulo/`, ex.: `05-s3-security/`), cada uma autocontida:
+
+- `README.md` — cenário, problema, correção, como aplicar/destruir, referências.
+- `main.tf`, `variables.tf`, `outputs.tf`, `versions.tf` — apenas a versão corrigida é deployável; o "antes" (prática insegura) é documentado em prosa/snippet no README, não é uma stack Terraform separada (decisão tomada para manter custo e esforço baixos).
+- Capítulo 16 (Well-Architected Review) é só documentação — não tem Terraform próprio, revisa o que foi construído nos capítulos anteriores.
+
+Cada capítulo é independente (sem módulos compartilhados entre pastas) para poder ser clonado e rodado isoladamente.
