@@ -34,4 +34,4 @@ A conta AWS usada não tem free tier. Sempre rode `terraform destroy` ao final d
 
 ## Licença
 
-[MIT](./LICENSE)
+[Apache License 2.0](./LICENSE)
