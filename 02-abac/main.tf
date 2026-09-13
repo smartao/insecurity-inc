@@ -1,72 +1,113 @@
 data "aws_caller_identity" "current" {}
 
+# AMI oficial mais recente do Amazon Linux 2023, via parâmetro público do
+# SSM mantido pela própria AWS — evita filtro manual por nome/data.
+data "aws_ssm_parameter" "al2023_ami" {
+  name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+}
+
+# Rede default da conta: usada só para dar um lugar de existir às instâncias
+# de exemplo. Redes dedicadas (VPC própria, subnets privadas) são assunto
+# dos capítulos 09/10 — aqui a rede é só coadjuvante (mesmo racional do
+# capítulo 01).
+data "aws_vpc" "default" {
+  count   = var.subnet_id == "" ? 1 : 0
+  default = true
+}
+
+# Nem toda AZ do us-east-1 suporta todo tipo de instância — descobrir as AZs
+# que suportam var.instance_type antes de escolher a subnet evita um
+# RunInstances que falha por sorteio.
+data "aws_ec2_instance_type_offerings" "supported" {
+  count = var.subnet_id == "" ? 1 : 0
+
+  filter {
+    name   = "instance-type"
+    values = [var.instance_type]
+  }
+
+  location_type = "availability-zone"
+}
+
+data "aws_subnets" "default" {
+  count = var.subnet_id == "" ? 1 : 0
+
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default[0].id]
+  }
+
+  filter {
+    name   = "availability-zone"
+    values = data.aws_ec2_instance_type_offerings.supported[0].locations
+  }
+}
+
 locals {
-  # Nome da tag usada tanto no principal (IAM User/Role) quanto no prefixo dos
-  # objetos no bucket. É o "elo" entre identidade e recurso que faz a ABAC
-  # funcionar — mantenha o mesmo nome em toda a policy e ao taguear usuários novos.
+  subnet_id = var.subnet_id != "" ? var.subnet_id : data.aws_subnets.default[0].ids[0]
+
+  # Nome da tag usada tanto no principal (IAM User) quanto no recurso (EC2
+  # instance). É o "elo" entre identidade e recurso que faz a ABAC
+  # funcionar — mantenha o mesmo nome ao taguear identidades e apps novas.
   access_tag_key = "access-project"
 }
 
-# Bucket único, compartilhado entre times. Ao contrário do capítulo 01 (um
-# bucket + uma policy por recurso), aqui um único bucket é particionado por
-# prefixo/pasta — é a policy ABAC quem decide, em tempo de avaliação, a qual
-# prefixo cada identidade tem acesso, com base na própria tag da identidade.
-resource "aws_s3_bucket" "team_reports" {
-  bucket        = "${var.team_reports_bucket_name}-${data.aws_caller_identity.current.account_id}"
-  force_destroy = true # bucket de laboratório — permite destroy mesmo com objetos de teste dentro
-
-  tags = var.tags
-}
-
-# Marcadores de "pasta" (objetos vazios terminados em "/"), um por time de
-# exemplo — só para tornar a estrutura de prefixos visível no console;
-# não têm efeito na avaliação da policy.
-resource "aws_s3_object" "team_folder" {
+# Uma instância "de app" por time de exemplo. Não roda nada (AMI padrão, sem
+# user_data) — existe só para dar um recurso real e tagueado à policy. Ao
+# contrário do capítulo 01 (ARN de cada instância escrito na policy), aqui o
+# que importa é a tag access-project no RECURSO — a policy nunca menciona um
+# time ou um ARN de instância específico.
+resource "aws_instance" "team_app" {
   for_each = toset(var.teams)
 
-  bucket  = aws_s3_bucket.team_reports.id
-  key     = "${each.value}/"
-  content = ""
+  ami                         = data.aws_ssm_parameter.al2023_ami.value
+  instance_type               = var.instance_type
+  subnet_id                   = local.subnet_id
+  associate_public_ip_address = false
+
+  tags = merge(var.tags, {
+    Name                   = "insecurity-inc-${each.value}-app"
+    (local.access_tag_key) = each.value
+  })
 }
 
-# Policy única e dinâmica: nenhuma statement referencia um time específico.
-# O prefixo permitido em ListBucket, e o Resource em GetObject/PutObject, são
-# resolvidos em tempo de avaliação a partir da tag aws:PrincipalTag da própria
-# identidade que faz a chamada — o mesmo grupo/policy serve qualquer time novo,
-# desde que a tag exista e a pasta correspondente exista no bucket.
+# Policy única e dinâmica: nenhuma statement referencia um time ou um ARN de
+# instância específico.
 #
-# A condição "Null" é a mitigação recomendada pelo próprio tutorial de ABAC da
-# AWS: sem ela, uma identidade SEM a tag access-project teria o valor da
-# variável de policy resolvido de forma não documentada, o que poderia liberar
-# ou negar acesso de forma imprevisível em vez de simplesmente negar.
-data "aws_iam_policy_document" "abac_team_reports" {
+# ec2:DescribeInstances continua exigindo Resource "*" — a mesma limitação
+# de API do capítulo 01 (Service Authorization Reference), não descuido do
+# exemplo.
+#
+# Start/Stop/Reboot escopam para o tipo de recurso "instance" da própria
+# conta/região e usam uma condition StringEquals comparando a tag do RECURSO
+# (aws:ResourceTag) com a tag do PRINCIPAL (aws:PrincipalTag) — é o padrão de
+# ABAC por resource tag do tutorial oficial da AWS, aplicado ao EC2. A
+# condition Null é a mesma mitigação recomendada pelo tutorial: sem a tag no
+# principal, a AWS nega o acesso em vez de resolver a comparação de forma
+# imprevisível.
+data "aws_iam_policy_document" "abac_team_apps" {
   statement {
-    sid       = "ListOwnPrefixOnly"
+    sid       = "DescribeEC2Instances"
     effect    = "Allow"
-    actions   = ["s3:ListBucket"]
-    resources = [aws_s3_bucket.team_reports.arn]
-
-    condition {
-      test     = "StringLike"
-      variable = "s3:prefix"
-      values   = ["$${aws:PrincipalTag/${local.access_tag_key}}/*"]
-    }
-
-    condition {
-      test     = "Null"
-      variable = "aws:PrincipalTag/${local.access_tag_key}"
-      values   = ["false"]
-    }
+    actions   = ["ec2:DescribeInstances"]
+    resources = ["*"]
   }
 
   statement {
-    sid    = "ReadWriteOwnPrefixOnly"
+    sid    = "RestartOwnProjectInstanceOnly"
     effect = "Allow"
     actions = [
-      "s3:GetObject",
-      "s3:PutObject",
+      "ec2:StartInstances",
+      "ec2:StopInstances",
+      "ec2:RebootInstances",
     ]
-    resources = ["${aws_s3_bucket.team_reports.arn}/$${aws:PrincipalTag/${local.access_tag_key}}/*"]
+    resources = ["arn:aws:ec2:${var.region}:${data.aws_caller_identity.current.account_id}:instance/*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:ResourceTag/${local.access_tag_key}"
+      values   = ["$${aws:PrincipalTag/${local.access_tag_key}}"]
+    }
 
     condition {
       test     = "Null"
@@ -76,30 +117,31 @@ data "aws_iam_policy_document" "abac_team_reports" {
   }
 }
 
-resource "aws_iam_policy" "abac_team_reports" {
-  name        = "insecurity-inc-abac-team-reports-policy"
-  description = "Acesso dinâmico ao bucket compartilhado: cada identidade só enxerga o prefixo (pasta) que corresponde à sua própria tag access-project (ABAC)."
-  policy      = data.aws_iam_policy_document.abac_team_reports.json
+resource "aws_iam_policy" "abac_team_apps" {
+  name        = "insecurity-inc-abac-team-apps-policy"
+  description = "Describe amplo (limitação da API do EC2) + start/stop/reboot só na instância cuja tag access-project bate com a do principal (ABAC)."
+  policy      = data.aws_iam_policy_document.abac_team_apps.json
   tags        = var.tags
 }
 
-# RBAC continua presente por baixo da ABAC: a policy é anexada ao GRUPO, nunca
-# diretamente a um usuário (CIS AWS Foundations Benchmark v3.0.0, controle
-# 1.15) — ABAC substitui a explosão de POLICIES por time, não a estrutura de
-# grupos.
+# RBAC continua presente por baixo da ABAC: a policy é anexada ao GRUPO,
+# nunca diretamente a um usuário (CIS AWS Foundations Benchmark v3.0.0,
+# controle 1.15) — ABAC substitui a explosão de POLICIES por time, não a
+# estrutura de grupos.
 resource "aws_iam_group" "abac_analysts" {
   name = "insecurity-inc-abac-analysts"
 }
 
 resource "aws_iam_group_policy_attachment" "abac_analysts" {
   group      = aws_iam_group.abac_analysts.name
-  policy_arn = aws_iam_policy.abac_team_reports.arn
+  policy_arn = aws_iam_policy.abac_team_apps.arn
 }
 
 # Um usuário de exemplo por time, todos no MESMO grupo, com a MESMA policy —
 # o que muda de um time para o outro é só o valor da tag access-project.
 # Sem login de console e sem access key geradas por Terraform (mesmo
-# racional do capítulo 01: credencial de longo prazo não deve viver no state).
+# racional do capítulo 01: credencial de longo prazo não deve viver no
+# state).
 resource "aws_iam_user" "team_analyst" {
   for_each = toset(var.teams)
 

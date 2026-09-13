@@ -1,11 +1,11 @@
-output "team_reports_bucket_name" {
-  description = "Nome do bucket S3 compartilhado, particionado por prefixo/pasta (um por time)."
-  value       = aws_s3_bucket.team_reports.bucket
+output "team_app_instance_ids" {
+  description = "IDs das instâncias EC2 de exemplo, uma por time — cada uma tagueada com access-project = <time>."
+  value       = { for team, instance in aws_instance.team_app : team => instance.id }
 }
 
-output "abac_team_reports_policy_arn" {
+output "abac_team_apps_policy_arn" {
   description = "ARN da customer-managed policy ABAC única, compartilhada por todos os times."
-  value       = aws_iam_policy.abac_team_reports.arn
+  value       = aws_iam_policy.abac_team_apps.arn
 }
 
 output "abac_analysts_group_name" {

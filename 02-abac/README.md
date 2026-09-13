@@ -7,53 +7,55 @@
 
 ## 🎬 Cenário
 
-O RBAC do capítulo 01 funcionou bem para a primeira analista. Mas a Insecurity Inc. cresceu: agora tem gente de **marketing** e de **engenharia**, cada time com seu próprio bucket de relatórios. Seguindo à risca o padrão que "funcionou da última vez", o fundador repete a receita do capítulo 01 para cada time novo: um bucket, uma customer-managed policy escopada a esse bucket, um grupo.
+O RBAC do capítulo 01 funcionou bem para o plantão do checkout. Mas a Insecurity Inc. continuou crescendo: hoje o time de **marketing** tem seu próprio painel de campanhas rodando numa instância EC2, e o time de **engenharia** tem uma instância de ferramentas internas. Seguindo à risca o padrão que "funcionou da última vez", o fundador repete a receita do capítulo 01 para cada app novo: uma instância, uma customer-managed policy escopada ao ARN dessa instância, um grupo.
 
-No terceiro time, ao copiar e colar a policy do time de marketing para criar a do time de engenharia, alguém esquece de trocar o ARN do recurso. O JSON que vai para o grupo `insecurity-inc-engineering-analysts` fica assim:
+No terceiro time, ao copiar e colar a policy do marketing para criar a da engenharia, alguém esquece de trocar o ARN da instância. O JSON que vai para o grupo `insecurity-inc-engineering-analysts` fica assim:
 
 ```json
 {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "ReadWriteReportsObjects",
+      "Sid": "RestartEngineeringAppInstance",
       "Effect": "Allow",
-      "Action": ["s3:GetObject", "s3:PutObject"],
-      "Resource": "arn:aws:s3:::insecurity-inc-reports-marketing-lab-<account-id>/*"
+      "Action": ["ec2:StartInstances", "ec2:StopInstances", "ec2:RebootInstances"],
+      "Resource": "arn:aws:ec2:us-east-1:<account-id>:instance/i-0a1b2c3d4e5f6g7h8"
     }
   ]
 }
 ```
 
-O nome do grupo diz "engineering", a policy aponta para o bucket de "marketing". O erro só seria percebido quando alguém do time de engenharia reclamasse de não conseguir acessar nada — ou, pior, quando alguém do time de marketing notasse que gente de fora está lendo seus relatórios.
+O ID da instância acima é o da app de **marketing** — não da de engenharia. O nome do grupo diz "engineering", a policy controla a instância de outro time. O erro só seria percebido quando alguém da engenharia reclamasse de não conseguir reiniciar a própria app — ou, pior, quando o marketing notasse que outro time consegue derrubar a aplicação deles.
 
 ## 🚨 O Problema
 
-1. **Policy sprawl.** RBAC estático (capítulo 01) exige uma policy nova, escrita à mão, para cada combinação de time × recurso. Com *N* times, são *N* buckets, *N* policies e *N* grupos para manter e auditar — o esforço cresce linearmente (e o risco de erro, junto).
-2. **Erro humano por copy-paste vira uma falha de segurança real.** O JSON acima não é hipotético: é o tipo de engano que acontece quando "criar acesso para um time novo" significa "duplicar o JSON do time anterior e editar os campos certos". Um ARN esquecido concede acesso cruzado entre times — exatamente o tipo de vazamento de escopo que o least privilege deveria evitar.
-3. **Auditoria não escala.** Para responder "quem pode acessar os relatórios de marketing?" é preciso abrir e ler cada policy de cada grupo, uma a uma — não existe um único lugar ou uma única regra para consultar.
+1. **Policy sprawl.** RBAC estático (capítulo 01) exige uma policy nova, escrita à mão, para cada combinação de time × instância. Com *N* times, são *N* instâncias, *N* policies e *N* grupos para manter e auditar — o esforço cresce linearmente (e o risco de erro, junto).
+2. **Erro humano por copy-paste vira uma falha de segurança real.** O JSON acima não é hipotético: é o tipo de engano que acontece quando "criar acesso para um time novo" significa "duplicar o JSON do time anterior e editar o ARN certo". Um ID de instância esquecido concede controle cruzado entre times — start/stop/reboot é suficiente para causar uma indisponibilidade na aplicação errada.
+3. **Auditoria não escala.** Para responder "quem pode reiniciar a app de marketing?" é preciso abrir e ler cada policy de cada grupo, uma a uma — não existe um único lugar ou uma única regra para consultar.
 
-O AWS Well-Architected Framework — Security Pillar (SEC03-BP02, *Grant least privilege access*) aponta justamente essa limitação de escalar permissões via policies estáticas conforme o número de times/recursos cresce, e recomenda **attribute-based access control (ABAC)** como alternativa: em vez de uma policy por recurso, uma única policy cujo escopo é resolvido dinamicamente a partir de atributos (tags) da própria identidade que faz a chamada.
+O AWS Well-Architected Framework — Security Pillar (SEC03-BP02, *Grant least privilege access*) aponta justamente essa limitação de escalar permissões via policies estáticas conforme o número de times/recursos cresce, e recomenda **attribute-based access control (ABAC)** como alternativa: em vez de uma policy por recurso, uma única policy cujo escopo é resolvido dinamicamente a partir de atributos (tags) da própria identidade e do próprio recurso.
 
 ## ✅ A Correção
 
-Este capítulo reestrutura o acesso aos relatórios como ABAC, reaproveitando o conceito do capítulo 01 (S3 + IAM Group), mas trocando "uma policy por time" por "uma policy para todos os times":
+Este capítulo reestrutura o acesso às instâncias como ABAC, reaproveitando o conceito do capítulo 01 (EC2 + IAM Group), mas trocando "uma policy por time" por "uma policy para todos os times" — e, diferente de uma primeira versão deste laboratório (que escopava acesso por pasta num bucket S3), usando o padrão de ABAC que a própria AWS demonstra no seu tutorial oficial: comparar a tag do **recurso** com a tag do **principal**, na própria condition da policy.
 
-1. **Um único bucket compartilhado** (`insecurity-inc-team-reports-lab-<account-id>`), particionado por prefixo/pasta — uma pasta por time (`marketing/`, `engineering/`) em vez de um bucket por time.
-2. **Uma única customer-managed policy** (`insecurity-inc-abac-team-reports-policy`) que **não menciona nenhum time por nome**. Em vez disso, usa variáveis de policy do IAM para resolver o escopo em tempo de avaliação:
-   - `s3:ListBucket` no bucket, condicionado a `s3:prefix` bater com `${aws:PrincipalTag/access-project}/*` — a identidade só consegue listar a própria pasta.
-   - `s3:GetObject`/`s3:PutObject`, com `Resource` igual a `<bucket-arn>/${aws:PrincipalTag/access-project}/*` — a identidade só consegue ler/gravar dentro da própria pasta.
-   - Uma condição `Null` em ambas as statements exige que a tag `access-project` exista no principal — sem ela, a AWS nega o acesso em vez de resolver a variável de forma imprevisível. É a mitigação recomendada pelo próprio [tutorial de ABAC da AWS](https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_attribute-based-access-control.html).
+1. **Uma instância EC2 por time de exemplo** (`insecurity-inc-marketing-app`, `insecurity-inc-engineering-app`), cada uma tagueada com `access-project=<time>` além das tags padrão do projeto. Não rodam nada — existem só para dar um recurso real e tagueado à policy.
+2. **Uma única customer-managed policy** (`insecurity-inc-abac-team-apps-policy`) que **não menciona nenhum time nem nenhum ARN de instância específico**:
+   - `ec2:DescribeInstances`, com `Resource: "*"`. Assim como no capítulo 01, essa ação **não suporta permissão a nível de recurso** — limitação documentada da própria API do EC2 (a [Service Authorization Reference](https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazonec2.html) lista, ação por ação, quais suportam ARN específico).
+   - `ec2:StartInstances`, `ec2:StopInstances` e `ec2:RebootInstances`, com `Resource` escopado ao tipo `instance/*` da própria conta/região (essas ações suportam permissão a nível de recurso), mais uma `Condition` `StringEquals` comparando `aws:ResourceTag/access-project` (a tag da instância) com `${aws:PrincipalTag/access-project}` (a tag de quem está chamando a API). Nenhum ARN de instância é escrito na policy — o match acontece em tempo de avaliação.
+   - Uma condição `Null` na segunda statement exige que a tag `access-project` exista no principal — sem ela, a AWS nega o acesso em vez de resolver a comparação de forma imprevisível. É a mesma mitigação recomendada pelo [tutorial de ABAC da AWS](https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_attribute-based-access-control.html) (que usa exatamente EC2 + `access-project` como exemplo).
 3. **Um único IAM Group** (`insecurity-inc-abac-analysts`) recebendo essa policy — de novo, nunca anexada direto a um usuário (CIS AWS Foundations Benchmark v3.0.0, controle 1.15).
 4. **Um usuário IAM por time de exemplo** (`insecurity-inc-marketing-analyst`, `insecurity-inc-engineering-analyst`), todos no mesmo grupo, com a **mesma** policy — o que diferencia o acesso de cada um é só o valor da tag `access-project` (`marketing` ou `engineering`).
 
-Onboarding de um time novo deixa de significar "escrever uma policy nova": significa criar a pasta no bucket e taguear a identidade com `access-project=<time>`. Nenhuma policy é tocada — e por isso o erro de copy-paste do cenário acima deixa de ser possível: não existe um segundo JSON para copiar.
+Onboarding de um time novo deixa de significar "escrever uma policy nova": significa criar a instância com a tag `access-project=<time>` e taguear a identidade correspondente. Nenhuma policy é tocada — e por isso o erro de copy-paste do cenário acima deixa de ser possível: não existe um segundo JSON para copiar, nem um ARN para esquecer de trocar.
 
 Essa é também a razão pela qual o [CLAUDE.md](../CLAUDE.md#convenções) deste repositório insiste em tagging consistente desde o capítulo 00/01: ABAC não funciona sem tags corretas e presentes em toda identidade e recurso.
 
 ## 🧪 Como aplicar
 
 Três caminhos equivalentes — escolha o que fizer sentido para você. Os três criam os mesmos recursos, com os mesmos nomes, então dá para misturar.
+
+> ⚠️ **Nota de custo:** assim como no capítulo 01, as instâncias EC2 cobram enquanto estiverem rodando (a conta usada não tem free tier). O custo de `t3.micro` por poucos minutos de teste é irrisório, mas não deixe rodando sem necessidade — teste e destrua em seguida.
 
 ### 🏗️ Opção 1 — Terraform (caminho testado neste repo)
 
@@ -62,50 +64,60 @@ terraform init
 terraform apply
 ```
 
-O nome do bucket é `${team_reports_bucket_name}-<account-id>` (prefixo definido em `variables.tf`, sufixado com o Account ID para garantir unicidade global). Os times de exemplo (`marketing`, `engineering`) também estão em `variables.tf`, na variável `teams`.
+Por padrão as instâncias sobem na subnet default da VPC default da conta/região (`var.subnet_id = ""`); se sua conta não tiver VPC default, informe `-var="subnet_id=<id-da-subnet>"`. Os times de exemplo (`marketing`, `engineering`) estão em `variables.tf`, na variável `teams`.
 
 ### ⌨️ Opção 2 — AWS CLI
 
 ```bash
+# 1. Descobrir AMI (Amazon Linux 2023, via parâmetro público do SSM), VPC e subnet default
+AMI_ID=$(aws ssm get-parameters \
+  --names /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64 \
+  --query 'Parameters[0].Value' --output text)
+
+VPC_ID=$(aws ec2 describe-vpcs --filters Name=isDefault,Values=true \
+  --query 'Vpcs[0].VpcId' --output text)
+
+SUBNET_ID=$(aws ec2 describe-subnets --filters Name=vpc-id,Values="$VPC_ID" \
+  --query 'Subnets[0].SubnetId' --output text)
+
+# 2. Criar uma instância por time, cada uma com a tag access-project correspondente
+INSTANCE_ID_MARKETING=$(aws ec2 run-instances \
+  --image-id "$AMI_ID" \
+  --instance-type t3.micro \
+  --subnet-id "$SUBNET_ID" \
+  --no-associate-public-ip-address \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=insecurity-inc-marketing-app},{Key=project,Value=insecurity-inc},{Key=env,Value=lab},{Key=chapter,Value=02},{Key=access-project,Value=marketing}]' \
+  --query 'Instances[0].InstanceId' --output text)
+
+INSTANCE_ID_ENGINEERING=$(aws ec2 run-instances \
+  --image-id "$AMI_ID" \
+  --instance-type t3.micro \
+  --subnet-id "$SUBNET_ID" \
+  --no-associate-public-ip-address \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=insecurity-inc-engineering-app},{Key=project,Value=insecurity-inc},{Key=env,Value=lab},{Key=chapter,Value=02},{Key=access-project,Value=engineering}]' \
+  --query 'Instances[0].InstanceId' --output text)
+
+# 3. Criar a policy ABAC — uma só, sem nenhum time ou ARN de instância no JSON
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-BUCKET_NAME="insecurity-inc-team-reports-lab-${ACCOUNT_ID}"
+REGION=$(aws configure get region)
 
-# 1. Criar o bucket compartilhado
-aws s3api create-bucket \
-  --bucket "$BUCKET_NAME" \
-  --region us-east-1
-# em região != us-east-1, adicione:
-# --create-bucket-configuration LocationConstraint=<região>
-
-aws s3api put-bucket-tagging \
-  --bucket "$BUCKET_NAME" \
-  --tagging 'TagSet=[{Key=project,Value=insecurity-inc},{Key=env,Value=lab},{Key=chapter,Value=02}]'
-
-# 2. Criar uma "pasta" (marcador vazio) por time
-aws s3api put-object --bucket "$BUCKET_NAME" --key "marketing/"
-aws s3api put-object --bucket "$BUCKET_NAME" --key "engineering/"
-
-# 3. Criar a policy ABAC — uma só, sem nenhum time no nome ou no JSON
-cat > /tmp/abac-team-reports-policy.json <<EOF
+cat > /tmp/abac-team-apps-policy.json <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "ListOwnPrefixOnly",
+      "Sid": "DescribeEC2Instances",
       "Effect": "Allow",
-      "Action": "s3:ListBucket",
-      "Resource": "arn:aws:s3:::${BUCKET_NAME}",
-      "Condition": {
-        "StringLike": {"s3:prefix": ["\${aws:PrincipalTag/access-project}/*"]},
-        "Null": {"aws:PrincipalTag/access-project": "false"}
-      }
+      "Action": "ec2:DescribeInstances",
+      "Resource": "*"
     },
     {
-      "Sid": "ReadWriteOwnPrefixOnly",
+      "Sid": "RestartOwnProjectInstanceOnly",
       "Effect": "Allow",
-      "Action": ["s3:GetObject", "s3:PutObject"],
-      "Resource": "arn:aws:s3:::${BUCKET_NAME}/\${aws:PrincipalTag/access-project}/*",
+      "Action": ["ec2:StartInstances", "ec2:StopInstances", "ec2:RebootInstances"],
+      "Resource": "arn:aws:ec2:${REGION}:${ACCOUNT_ID}:instance/*",
       "Condition": {
+        "StringEquals": {"aws:ResourceTag/access-project": "\${aws:PrincipalTag/access-project}"},
         "Null": {"aws:PrincipalTag/access-project": "false"}
       }
     }
@@ -114,9 +126,9 @@ cat > /tmp/abac-team-reports-policy.json <<EOF
 EOF
 
 aws iam create-policy \
-  --policy-name insecurity-inc-abac-team-reports-policy \
-  --policy-document file:///tmp/abac-team-reports-policy.json \
-  --description "Acesso dinamico ao bucket compartilhado via tag access-project (ABAC)."
+  --policy-name insecurity-inc-abac-team-apps-policy \
+  --policy-document file:///tmp/abac-team-apps-policy.json \
+  --description "Describe amplo (limitação da API do EC2) + start/stop/reboot só na instância cuja tag access-project bate com a do principal (ABAC)."
 # guarde o Arn retornado
 POLICY_ARN=<Arn retornado acima>
 
@@ -144,45 +156,54 @@ aws iam add-user-to-group --user-name insecurity-inc-engineering-analyst --group
 
 ### 🖥️ Opção 3 — Console (GUI)
 
-1. **Criar o bucket:** console **S3** → **Create bucket** → nome `insecurity-inc-team-reports-lab-<account-id>` → região desejada → deixe **Block all public access** marcado (padrão) → em *Tags*, adicione `project=insecurity-inc`, `env=lab`, `chapter=02` → **Create bucket**.
-2. **Criar as pastas:** dentro do bucket → **Create folder** → `marketing` → **Create folder**; repita para `engineering`.
-3. **Criar a policy:** console **IAM** → **Policies** → **Create policy** → aba **JSON** → cole o JSON da Opção 2 (com o nome real do bucket, sem as barras invertidas antes de `${...}`) → **Next** → nome `insecurity-inc-abac-team-reports-policy`, descrição "Acesso dinâmico ao bucket compartilhado via tag access-project (ABAC)." → **Create policy**.
-4. **Criar o grupo:** **IAM** → **User groups** → **Create group** → nome `insecurity-inc-abac-analysts` → em **Attach permissions policies**, marque `insecurity-inc-abac-team-reports-policy` → **Create group**.
-5. **Criar os usuários:** **IAM** → **Users** → **Create user** → nome `insecurity-inc-marketing-analyst` → **não** marque acesso ao Console → **Next** → em **Add user to group**, selecione `insecurity-inc-abac-analysts` → **Create user**. Depois, abra o usuário criado → aba **Tags** → **Add new tag** → chave `access-project`, valor `marketing`. Repita tudo para `insecurity-inc-engineering-analyst` com valor `engineering`.
+1. **Criar as instâncias:** console **EC2** → **Launch instance** → nome `insecurity-inc-marketing-app` → AMI **Amazon Linux 2023** → tipo `t3.micro` → em **Network settings**, mantenha a VPC/subnet default e **desmarque** "Auto-assign public IP" → em **Tags**, adicione `project=insecurity-inc`, `env=lab`, `chapter=02`, `access-project=marketing` → **Launch instance**. Repita para `insecurity-inc-engineering-app` com `access-project=engineering`.
+2. **Criar a policy:** console **IAM** → **Policies** → **Create policy** → aba **JSON** → cole o JSON da Opção 2 (com região/Account ID reais, sem as barras invertidas antes de `${...}`) → **Next** → nome `insecurity-inc-abac-team-apps-policy`, descrição "Describe amplo (limitação da API do EC2) + start/stop/reboot só na instância cuja tag access-project bate com a do principal (ABAC)." → **Create policy**.
+3. **Criar o grupo:** **IAM** → **User groups** → **Create group** → nome `insecurity-inc-abac-analysts` → em **Attach permissions policies**, marque `insecurity-inc-abac-team-apps-policy` → **Create group**.
+4. **Criar os usuários:** **IAM** → **Users** → **Create user** → nome `insecurity-inc-marketing-analyst` → **não** marque acesso ao Console → **Next** → em **Add user to group**, selecione `insecurity-inc-abac-analysts` → **Create user**. Depois, abra o usuário criado → aba **Tags** → **Add new tag** → chave `access-project`, valor `marketing`. Repita tudo para `insecurity-inc-engineering-analyst` com valor `engineering`.
 
 ## 🧾 Como testar
 
-Diferente do capítulo 01 (uma identidade só), aqui o objetivo é comparar **duas** identidades com a mesma policy e ver o escopo divergir por causa da tag. A forma mais direta é via access key temporária + AWS CLI (login de console também funcionaria, mas comparar dois usuários fica mais rápido no terminal). Assim como no capítulo 01, o Terraform **não** gera credenciais — crie-as manualmente, teste, e remova em seguida.
+Diferente do capítulo 01 (uma identidade só), aqui o objetivo é comparar **duas** identidades com a mesma policy e ver o escopo divergir por causa da tag. Assim como no capítulo 01, o Terraform **não** gera credenciais — crie-as manualmente, teste, e remova em seguida.
 
 ```bash
 # 1. Criar uma access key temporária para cada analista de teste
 aws iam create-access-key --user-name insecurity-inc-marketing-analyst > /tmp/marketing-key.json
 aws iam create-access-key --user-name insecurity-inc-engineering-analyst > /tmp/engineering-key.json
 
-# 2. Configurar um profile local para cada uma
+# 2. Configurar um profile local para cada uma (região explícita: um profile
+#    novo não herda a região do profile default, e sem ela a CLI falha com
+#    "NoRegion: You must specify a region")
+REGION=$(aws configure get region)
+
 aws configure set aws_access_key_id "$(jq -r .AccessKey.AccessKeyId /tmp/marketing-key.json)" --profile marketing-analyst
 aws configure set aws_secret_access_key "$(jq -r .AccessKey.SecretAccessKey /tmp/marketing-key.json)" --profile marketing-analyst
+aws configure set region "$REGION" --profile marketing-analyst
 
 aws configure set aws_access_key_id "$(jq -r .AccessKey.AccessKeyId /tmp/engineering-key.json)" --profile engineering-analyst
 aws configure set aws_secret_access_key "$(jq -r .AccessKey.SecretAccessKey /tmp/engineering-key.json)" --profile engineering-analyst
+aws configure set region "$REGION" --profile engineering-analyst
 
-ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-BUCKET_NAME="insecurity-inc-team-reports-lab-${ACCOUNT_ID}"
+# 3. Descobrir os IDs das duas instâncias
+MARKETING_ID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=insecurity-inc-marketing-app \
+  --query 'Reservations[0].Instances[0].InstanceId' --output text)
+ENGINEERING_ID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=insecurity-inc-engineering-app \
+  --query 'Reservations[0].Instances[0].InstanceId' --output text)
 
-# 3. A analista de marketing só enxerga a própria pasta
-aws s3 ls "s3://${BUCKET_NAME}/marketing/" --profile marketing-analyst        # funciona
-aws s3 ls "s3://${BUCKET_NAME}/engineering/" --profile marketing-analyst     # AccessDenied
+# 4. A analista de marketing só consegue reiniciar a própria instância
+aws ec2 describe-instances --profile marketing-analyst > /dev/null && echo "describe: ok (Resource *)"
 
-echo "teste" > /tmp/relatorio.txt
-aws s3 cp /tmp/relatorio.txt "s3://${BUCKET_NAME}/marketing/relatorio.txt" --profile marketing-analyst   # funciona
-aws s3 cp /tmp/relatorio.txt "s3://${BUCKET_NAME}/engineering/relatorio.txt" --profile marketing-analyst # AccessDenied
+aws ec2 reboot-instances --instance-ids "$MARKETING_ID" --profile marketing-analyst    # funciona
+aws ec2 reboot-instances --instance-ids "$ENGINEERING_ID" --profile marketing-analyst  # AccessDenied
 
-# 4. O analista de engenharia vive o espelho: só a própria pasta
-aws s3 ls "s3://${BUCKET_NAME}/engineering/" --profile engineering-analyst   # funciona
-aws s3 ls "s3://${BUCKET_NAME}/marketing/" --profile engineering-analyst    # AccessDenied
+# 5. O analista de engenharia vive o espelho: só a própria instância
+aws ec2 reboot-instances --instance-ids "$ENGINEERING_ID" --profile engineering-analyst  # funciona
+aws ec2 reboot-instances --instance-ids "$MARKETING_ID" --profile engineering-analyst    # AccessDenied
+
+# 6. Terminate nunca é permitido, nem na própria instância — a policy só concede start/stop/reboot
+aws ec2 terminate-instances --instance-ids "$MARKETING_ID" --profile marketing-analyst  # AccessDenied
 ```
 
-A mesma policy, o mesmo grupo — o que muda o resultado é só a tag `access-project` de cada identidade. É essa a demonstração de que "uma regra, N times" funciona.
+A mesma policy, o mesmo grupo — o que muda o resultado é só a tag `access-project` de cada identidade comparada com a tag da instância. É essa a demonstração de que "uma regra, N times" funciona sem que a policy conheça nenhum ARN específico.
 
 Depois do teste, revogue as access keys (elas são credenciais de longa duração — não deixe nenhuma viva além do necessário; ciclo de vida de credenciais é assunto do capítulo 04):
 
@@ -191,7 +212,7 @@ aws iam delete-access-key --user-name insecurity-inc-marketing-analyst \
   --access-key-id "$(jq -r .AccessKey.AccessKeyId /tmp/marketing-key.json)"
 aws iam delete-access-key --user-name insecurity-inc-engineering-analyst \
   --access-key-id "$(jq -r .AccessKey.AccessKeyId /tmp/engineering-key.json)"
-rm -f /tmp/marketing-key.json /tmp/engineering-key.json /tmp/relatorio.txt
+rm -f /tmp/marketing-key.json /tmp/engineering-key.json
 ```
 
 ## 🧹 Como destruir
@@ -226,7 +247,7 @@ for TEAM in marketing engineering; do
 done
 
 POLICY_ARN=$(aws iam list-policies --scope Local \
-  --query "Policies[?PolicyName=='insecurity-inc-abac-team-reports-policy'].Arn" \
+  --query "Policies[?PolicyName=='insecurity-inc-abac-team-apps-policy'].Arn" \
   --output text)
 
 aws iam detach-group-policy \
@@ -237,25 +258,25 @@ aws iam delete-group --group-name insecurity-inc-abac-analysts
 
 aws iam delete-policy --policy-arn "$POLICY_ARN"
 
-ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-BUCKET_NAME="insecurity-inc-team-reports-lab-${ACCOUNT_ID}"
-
-aws s3 rm "s3://$BUCKET_NAME" --recursive   # remove objetos e marcadores de pasta
-aws s3api delete-bucket --bucket "$BUCKET_NAME"
+aws ec2 terminate-instances --filters Name=tag:Name,Values=insecurity-inc-marketing-app,insecurity-inc-engineering-app
+# ou, se não tiver os IDs à mão:
+# aws ec2 describe-instances \
+#   --filters "Name=tag:Name,Values=insecurity-inc-marketing-app,insecurity-inc-engineering-app" "Name=instance-state-name,Values=running,stopped" \
+#   --query 'Reservations[].Instances[].InstanceId' --output text
 ```
 
 ### 🖥️ Console (GUI)
 
 1. **IAM** → **Users** → selecione `insecurity-inc-marketing-analyst` e `insecurity-inc-engineering-analyst` → **Delete** (um de cada vez).
-2. **IAM** → **User groups** → selecione `insecurity-inc-abac-analysts` → **Delete** (se pedir para remover policies anexadas antes, desanexe `insecurity-inc-abac-team-reports-policy` primeiro).
-3. **IAM** → **Policies** → filtre por *Customer managed* → selecione `insecurity-inc-abac-team-reports-policy` → **Delete**.
-4. **S3** → selecione o bucket `insecurity-inc-team-reports-lab-<account-id>` → **Empty** (esvaziar objetos, incluindo os marcadores de pasta) → confirme → **Delete** → confirme digitando o nome do bucket.
+2. **IAM** → **User groups** → selecione `insecurity-inc-abac-analysts` → **Delete** (se pedir para remover policies anexadas antes, desanexe `insecurity-inc-abac-team-apps-policy` primeiro).
+3. **IAM** → **Policies** → filtre por *Customer managed* → selecione `insecurity-inc-abac-team-apps-policy` → **Delete**.
+4. **EC2** → **Instances** → selecione `insecurity-inc-marketing-app` e `insecurity-inc-engineering-app` → **Instance state** → **Terminate instance** → confirme.
 
 ## 📚 Referências
 
 - [SEC03-BP02 — Grant least privilege access](https://docs.aws.amazon.com/wellarchitected/latest/framework/sec_permissions_least_privileges.html) — AWS Well-Architected Framework, Security Pillar; discute ABAC como estratégia para escalar least privilege conforme o número de times/recursos cresce.
 - [Attribute-based access control (ABAC) for AWS](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction_attribute-based-access-control.html) — visão geral oficial do IAM sobre ABAC, incluindo quando preferi-lo a RBAC.
-- [IAM tutorial: Define permissions to access AWS resources based on tags](https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_attribute-based-access-control.html) — tutorial oficial que originou o padrão `aws:PrincipalTag` + condição `Null` usado neste capítulo.
-- [IAM JSON policy elements: Variables and tags](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_variables.html) — referência da sintaxe `${aws:PrincipalTag/chave}` usada nas statements de `Resource` e `Condition`.
-- [Amazon S3: Example — restrict access to a prefix (home directory pattern)](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_examples_s3_rw-home-dir.html) — origem do uso de `s3:prefix` com `StringLike` para limitar `ListBucket` a uma pasta.
+- [IAM tutorial: Define permissions to access AWS resources based on tags](https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_attribute-based-access-control.html) — tutorial oficial da AWS que usa exatamente EC2 + tag `access-project`, comparando `aws:ResourceTag` com `aws:PrincipalTag`; é o padrão implementado neste capítulo.
+- [IAM JSON policy elements: Variables and tags](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_variables.html) — referência da sintaxe `${aws:PrincipalTag/chave}` e das chaves `aws:ResourceTag`/`aws:PrincipalTag` usadas nas conditions.
+- [Actions, resources, and condition keys for Amazon EC2](https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazonec2.html) — Service Authorization Reference; confirma quais ações do EC2 suportam permissão a nível de recurso e a chave de condição `aws:ResourceTag`.
 - CIS AWS Foundations Benchmark v3.0.0, controle 1.15 — *Ensure IAM Users Receive Permissions Only Through Groups* (a estrutura de grupo do capítulo 01 continua valendo aqui).
