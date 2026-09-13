@@ -1,4 +1,4 @@
-# insecurity-inc
+# 🔓 insecurity-inc
 
 ![Insecurity Inc. — "Same Business. Less Security." Quadrinho satírico de um escritório de tech: CEO comemorando "more features, less security" enquanto a equipe entra em pânico ao lado de um quadro branco listando más práticas de segurança na AWS (S3 público, Security Group 0.0.0.0/0, root user em uso, sem MFA, chaves no código, CloudTrail desabilitado, sem backup, sem monitoramento) prestes a ir para produção.](./imagens/insecurity-inc-capa-02-13092026.png)
 
@@ -6,7 +6,7 @@
 
 Detalhes de contexto, restrições de custo e decisões de arquitetura estão em [CLAUDE.md](./CLAUDE.md).
 
-## Capítulos
+## 🗂️ Capítulos
 
 | # | Arco | Capítulo | Custo |
 |---|------|----------|-------|
@@ -28,10 +28,10 @@ Detalhes de contexto, restrições de custo e decisões de arquitetura estão em
 | [15](./15-organizations-rcp) | Governança (Org) | Organizations + RCP | 🟢 |
 | [16](./16-well-architected-review) | Fechamento | Well-Architected Review | 🟢 |
 
-## Aviso de custo
+## 💸 Aviso de custo
 
 A conta AWS usada não tem free tier. Sempre rode `terraform destroy` ao final de cada capítulo antes de seguir para o próximo — veja detalhes em [CLAUDE.md](./CLAUDE.md#restrição-de-custo-importante).
 
-## Licença
+## 📄 Licença
 
 [Apache License 2.0](./LICENSE)

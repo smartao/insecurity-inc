@@ -1,22 +1,22 @@
-# 16 — Well-Architected Review
+# 16 — 🏁 Well-Architected Review
 
 **Arco:** Fechamento
 **Conceito:** Auditoria final
 **Custo:** 🟢
 **Depende de:** capítulo(s) todos anteriores
 
-## Objetivo
+## 🎯 Objetivo
 
 Revisão final usando a AWS Well-Architected Tool (pilar de Segurança) sobre tudo que foi construído nos capítulos anteriores.
 
-## Cenário
+## 🎬 Cenário
 
 _(a preencher — o que a Insecurity Inc. aprendeu ao longo da jornada)_
 
-## Como revisar
+## 🔍 Como revisar
 
 _(a preencher — passo a passo da revisão no AWS Well-Architected Tool)_
 
-## Referências
+## 📚 Referências
 
 - (a preencher)

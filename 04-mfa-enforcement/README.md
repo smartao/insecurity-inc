@@ -1,35 +1,35 @@
-# 04 — MFA Enforcement
+# 04 — 🔐 MFA Enforcement
 
 **Arco:** Identidade
 **Conceito:** Condição de política exigindo MFA
 **Custo:** 🟢
 
 
-## Cenário
+## 🎬 Cenário
 
 _(a preencher — o que a Insecurity Inc. configurou errado)_
 
-## O Problema
+## 🚨 O Problema
 
 _(a preencher — por que essa configuração é insegura)_
 
-## A Correção
+## ✅ A Correção
 
 _(a preencher — o que este Terraform implementa)_
 
-## Como aplicar
+## 🧪 Como aplicar
 
 ```bash
 terraform init
 terraform apply
 ```
 
-## Como destruir
+## 🧹 Como destruir
 
 ```bash
 terraform destroy
 ```
 
-## Referências
+## 📚 Referências
 
 - (a preencher — CIS AWS Foundations Benchmark, AWS docs, etc.)

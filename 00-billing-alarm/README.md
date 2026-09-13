@@ -1,18 +1,18 @@
-# 00 — Billing Alarm & Budgets
+# 00 — 💰 Billing Alarm & Budgets
 
 **Arco:** Fundação
 **Conceito:** Safety net
 **Custo:** 🟢
 
-## Cenário
+## 🎬 Cenário
 
 A Insecurity Inc. acabou de abrir a conta AWS e já está ansiosa para começar a colocar a mão na massa nos próximos capítulos deste laboratório. Ninguém configurou nenhum tipo de alerta de gasto: sem free tier, qualquer recurso esquecido rodando, qualquer credencial vazada e usada por terceiros, ou qualquer erro de configuração (ex.: deixar o AWS Config gravando item de configuração sem necessidade) vira uma surpresa desagradável só no fechamento da fatura.
 
-## O Problema
+## 🚨 O Problema
 
 Sem visibilidade de custo em tempo (quase) real, a conta opera às cegas: o primeiro sinal de um problema — uso indevido, recurso esquecido, engano de configuração — é o boleto no fim do mês, quando já é tarde para agir. Não existe nenhum "circuit breaker" de observação: nenhum alarme, nenhum orçamento, nenhuma notificação automática.
 
-## A Correção
+## ✅ A Correção
 
 Este capítulo implementa duas camadas complementares de alerta de custo, ambas notificando o mesmo e-mail (`alert_email`):
 
@@ -21,11 +21,11 @@ Este capítulo implementa duas camadas complementares de alerta de custo, ambas 
 
 **Pré-requisito manual (fora do Terraform):** o CloudWatch Billing Alarm só funciona se a opção **"Receive Billing Alerts"** estiver habilitada em *Billing and Cost Management → Billing preferences*, na conta de management. Essa preferência não é exposta via API/Terraform — sem ela, a métrica `EstimatedCharges` nunca é publicada e o alarme permanece em `INSUFFICIENT_DATA` para sempre. O AWS Budgets **não** depende dessa preferência e funciona independentemente dela.
 
-## Como aplicar
+## 🧪 Como aplicar
 
 Três caminhos equivalentes — escolha o que fizer sentido para você. Os três criam os mesmos recursos, com os mesmos nomes, então dá para misturar (ex.: aplicar via CLI e depois inspecionar/destruir via Console).
 
-### Opção 1 — Terraform (caminho testado neste repo)
+### 🏗️ Opção 1 — Terraform (caminho testado neste repo)
 
 ```bash
 terraform init
@@ -38,7 +38,7 @@ Após o `apply`, confirme as **duas** assinaturas de e-mail que chegam na caixa 
 
 > **Importante:** independentemente do caminho escolhido, o passo "Receive Billing Alerts" abaixo não tem equivalente em Terraform nem em CLI — é uma preferência de conta só exposta no Console, e sem ela o CloudWatch Alarm nunca sai de `INSUFFICIENT_DATA`.
 
-### Opção 2 — AWS CLI
+### ⌨️ Opção 2 — AWS CLI
 
 ```bash
 # 0. Habilitar "Receive Billing Alerts" — não existe comando de CLI/API para isso,
@@ -114,7 +114,7 @@ aws budgets create-budget \
   --region us-east-1
 ```
 
-### Opção 3 — Console (GUI)
+### 🖥️ Opção 3 — Console (GUI)
 
 0. **Habilitar alertas de billing (pré-requisito):** faça login com um usuário com permissão em Billing → **Billing and Cost Management** → **Billing preferences** → marque **"Receive Billing Alerts"** → **Save preferences**.
 1. **Criar o tópico SNS:** console **SNS**, confirme a região **us-east-1** (canto superior direito) → **Topics** → **Create topic** → tipo **Standard**, nome `insecurity-inc-billing-alerts` → em *Tags*, adicione `project=insecurity-inc`, `env=lab`, `chapter=00` → **Create topic**.
@@ -130,17 +130,17 @@ aws budgets create-budget \
    - Adicione mais dois alertas: 100% **Actual** e 100% **Forecasted**, ambos notificando o mesmo e-mail.
    - **Create budget**.
 
-## Como destruir
+## 🧹 Como destruir
 
 Destrua pelo mesmo caminho que usou para aplicar (ou combine, já que os nomes de recurso são os mesmos nos três).
 
-### Terraform
+### 🏗️ Terraform
 
 ```bash
 terraform destroy
 ```
 
-### AWS CLI
+### ⌨️ AWS CLI
 
 ```bash
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
@@ -165,14 +165,14 @@ aws sns delete-topic \
 # delete-topic já remove as assinaturas associadas
 ```
 
-### Console (GUI)
+### 🖥️ Console (GUI)
 
 1. **Budgets** → selecione `insecurity-inc-monthly-budget` → **Delete**.
 2. **CloudWatch** → **Alarms** → selecione `insecurity-inc-billing-estimated-charges` → **Delete** → confirme.
 3. **SNS** → **Topics** → selecione `insecurity-inc-billing-alerts` → **Delete** → confirme (remove a assinatura junto).
 4. "Receive Billing Alerts" pode ficar habilitado — não gera custo e não precisa ser revertido.
 
-## Referências
+## 📚 Referências
 
 - [Setting an Amazon CloudWatch alarm on estimated charges](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/monitor_estimated_charges_with_cloudwatch.html) — pré-requisito de habilitar "Receive Billing Alerts" e detalhes da métrica `EstimatedCharges`.
 - [Managing your costs with AWS Budgets](https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html)

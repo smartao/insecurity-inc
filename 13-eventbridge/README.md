@@ -1,35 +1,35 @@
-# 13 — EventBridge
+# 13 — ⚡ EventBridge
 
 **Arco:** Detecção & Auditoria
 **Conceito:** Detecção baseada em eventos
 **Custo:** 🟢
 **Depende de:** capítulo(s) 12
 
-## Cenário
+## 🎬 Cenário
 
 _(a preencher — o que a Insecurity Inc. configurou errado)_
 
-## O Problema
+## 🚨 O Problema
 
 _(a preencher — por que essa configuração é insegura)_
 
-## A Correção
+## ✅ A Correção
 
 _(a preencher — o que este Terraform implementa)_
 
-## Como aplicar
+## 🧪 Como aplicar
 
 ```bash
 terraform init
 terraform apply
 ```
 
-## Como destruir
+## 🧹 Como destruir
 
 ```bash
 terraform destroy
 ```
 
-## Referências
+## 📚 Referências
 
 - (a preencher — CIS AWS Foundations Benchmark, AWS docs, etc.)
