@@ -55,11 +55,26 @@ Já existe uma AWS Organization com uma única conta isolada. Decisão: manter c
 - **RCP (cap. 15)**: feature recente da AWS (lançada no final de 2024), cobertura de serviços ainda limitada (S3, KMS, STS, IAM roles, SQS, Secrets Manager, DynamoDB). Conferir documentação oficial atualizada antes de implementar.
 - **Narrativa**: cada capítulo conta uma etapa da jornada de maturidade da Insecurity Inc. — tem um "antes" (prática ruim) e um "depois" (correção), não é só um checklist técnico.
 
+## Documentação multi-caminho (Terraform / CLI / Console)
+
+Nem todo mundo que acessar o repositório terá Terraform disponível para reproduzir os cenários. Por isso, as seções "Como aplicar" e "Como destruir" de cada README documentam três caminhos equivalentes:
+
+1. **Terraform** — único caminho de fato aplicado/testado neste repo (`terraform apply` / `destroy`); é a fonte da verdade.
+2. **AWS CLI** — comandos equivalentes, passo a passo, para quem quiser reproduzir sem Terraform.
+3. **Console (GUI)** — passo a passo clicável no AWS Console, para quem está aprendendo ou não tem CLI configurada.
+
+Regras para manter os três caminhos coerentes:
+
+- Usar os mesmos nomes de recurso nos três caminhos (ex.: `insecurity-inc-billing-alerts`) para facilitar comparação.
+- Sinalizar explicitamente quando um passo não tem equivalente em algum caminho (ex.: "Receive Billing Alerts" não é exposto via API/Terraform, só Console).
+- "Como destruir" também precisa de equivalente CLI e Console, não só `terraform destroy` — quem seguiu o caminho manual não pode ficar com recursos órfãos gerando custo.
+- CLI e Console são documentação revisada por leitura, não validada em pipeline — Terraform continua sendo o que é de fato testado antes de cada `destroy`.
+
 ## Estrutura de pastas
 
 Uma pasta por capítulo (`NN-nome-do-capitulo/`, ex.: `05-s3-security/`), cada uma autocontida:
 
-- `README.md` — cenário, problema, correção, como aplicar/destruir, referências.
+- `README.md` — cenário, problema, correção, como aplicar/destruir (Terraform + CLI + Console), referências.
 - `main.tf`, `variables.tf`, `outputs.tf`, `versions.tf` — apenas a versão corrigida é deployável; o "antes" (prática insegura) é documentado em prosa/snippet no README, não é uma stack Terraform separada (decisão tomada para manter custo e esforço baixos).
 - Capítulo 16 (Well-Architected Review) é só documentação — não tem Terraform próprio, revisa o que foi construído nos capítulos anteriores.
 
