@@ -198,6 +198,17 @@ rm -f /tmp/marketing-key.json /tmp/engineering-key.json /tmp/relatorio.txt
 
 Destrua pelo mesmo caminho que usou para aplicar (ou combine, já que os nomes de recurso são os mesmos nos três). Se você criou access keys de teste (seção "Como testar") e ainda não as revogou, remova-as antes — o Terraform não gerencia essas credenciais e não vai tocar nelas sozinho.
 
+> **Erro comum:** `terraform destroy` falha com `DeleteConflict: Cannot delete entity, must delete access keys first` se alguma access key de teste ainda existir. Resolva listando e removendo as chaves de cada analista antes de destruir de novo:
+>
+> ```bash
+> for TEAM in marketing engineering; do
+>   USER="insecurity-inc-${TEAM}-analyst"
+>   for KEY_ID in $(aws iam list-access-keys --user-name "$USER" --query 'AccessKeyMetadata[].AccessKeyId' --output text); do
+>     aws iam delete-access-key --user-name "$USER" --access-key-id "$KEY_ID"
+>   done
+> done
+> ```
+
 ### 🏗️ Terraform
 
 ```bash
