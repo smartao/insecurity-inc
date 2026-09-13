@@ -14,14 +14,26 @@ variable "tags" {
   }
 }
 
-variable "reports_bucket_name" {
-  description = "Prefixo do nome do bucket S3 que representa o recurso alvo da policy least-privilege (o account ID é anexado para garantir unicidade global)."
+variable "instance_type" {
+  description = "Tipo de instância EC2 usada para simular a aplicação de checkout. t3.micro é suficiente para o laboratório — a conta usada não tem free tier, então destrua (ou pelo menos pare) as instâncias assim que terminar de testar."
   type        = string
-  default     = "insecurity-inc-reports-lab"
+  default     = "t3.micro"
 }
 
-variable "analyst_user_name" {
-  description = "Nome do usuário IAM de exemplo que representa a analista de dados, membro do grupo least-privilege."
+variable "checkout_app_instance_names" {
+  description = "Nomes (tag Name) das instâncias EC2 que representam a aplicação de checkout — são exatamente as instâncias que a policy least-privilege autoriza o plantão a start/stop/reboot."
+  type        = list(string)
+  default     = ["insecurity-inc-checkout-app-1", "insecurity-inc-checkout-app-2"]
+}
+
+variable "subnet_id" {
+  description = "ID da subnet onde as instâncias de exemplo serão criadas. Deixe vazio (\"\") para usar automaticamente a subnet default da VPC default da conta/região."
   type        = string
-  default     = "insecurity-inc-report-analyst"
+  default     = ""
+}
+
+variable "oncall_user_name" {
+  description = "Nome do usuário IAM de exemplo que representa o analista de plantão (on-call), membro do grupo least-privilege."
+  type        = string
+  default     = "insecurity-inc-oncall-analyst"
 }

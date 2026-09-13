@@ -1,19 +1,19 @@
-output "reports_bucket_name" {
-  description = "Nome do bucket S3 que representa o recurso alvo da policy least-privilege."
-  value       = aws_s3_bucket.reports.bucket
+output "checkout_app_instance_ids" {
+  description = "IDs das instâncias EC2 que representam a aplicação de checkout — as únicas instâncias que a policy autoriza o plantão a start/stop/reboot."
+  value       = { for name, instance in aws_instance.checkout_app : name => instance.id }
 }
 
-output "report_analysts_group_name" {
+output "oncall_sysops_group_name" {
   description = "Nome do grupo IAM ao qual a policy least-privilege está anexada (RBAC)."
-  value       = aws_iam_group.report_analysts.name
+  value       = aws_iam_group.oncall_sysops.name
 }
 
-output "reports_analyst_policy_arn" {
-  description = "ARN da customer-managed policy least-privilege criada para o grupo de analistas."
-  value       = aws_iam_policy.reports_analyst.arn
+output "oncall_sysops_policy_arn" {
+  description = "ARN da customer-managed policy least-privilege criada para o grupo de plantão."
+  value       = aws_iam_policy.oncall_sysops.arn
 }
 
-output "report_analyst_user_name" {
-  description = "Nome do usuário IAM de exemplo que representa a analista de dados, membro do grupo."
-  value       = aws_iam_user.report_analyst.name
+output "oncall_analyst_user_name" {
+  description = "Nome do usuário IAM de exemplo que representa o analista de plantão, membro do grupo."
+  value       = aws_iam_user.oncall_analyst.name
 }
