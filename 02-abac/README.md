@@ -2,10 +2,10 @@
 
 ![Capa do capítulo 02 — ABAC](../imagens/cover-02.jpg)
 
-**Arco:** Identidade
-**Conceito:** Policy dinâmica por tags
-**Custo:** 🟢
-**Depende de:** capítulo(s) 01
+**Arco:** Identidade  
+**Conceito:** Policy dinâmica por tags  
+**Custo:** 🟢  
+**Depende de:** capítulo(s) 01  
 
 ## 🎬 Cenário
 

@@ -2,9 +2,9 @@
 
 ![Capa do capítulo 03 — IAM Access Analyzer](../imagens/cover-03.jpg)
 
-**Arco:** Identidade
-**Conceito:** Acesso externo não intencional
-**Custo:** 🟢
+**Arco:** Identidade  
+**Conceito:** Acesso externo não intencional  
+**Custo:** 🟢  
 
 ## 🎬 Cenário
 

@@ -2,8 +2,8 @@
 
 ![Capa do capítulo 00 — Billing Alarm & Budgets](../imagens/cover-00.jpg)
 
-**Arco:** Fundação
-**Conceito:** Safety net
+**Arco:** Fundação  
+**Conceito:** Safety net  
 **Custo:** 🟢
 
 ## 🎬 Cenário

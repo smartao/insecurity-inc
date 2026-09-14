@@ -2,9 +2,9 @@
 
 ![Capa do capítulo 04 — MFA Enforcement](../imagens/cover-04.jpg)
 
-**Arco:** Identidade
-**Conceito:** Condição de política exigindo MFA
-**Custo:** 🟢
+**Arco:** Identidade  
+**Conceito:** Condição de política exigindo MFA  
+**Custo:** 🟢  
 
 ## 🎬 Cenário
 
