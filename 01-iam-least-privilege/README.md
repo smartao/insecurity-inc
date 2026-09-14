@@ -1,5 +1,7 @@
 # 01 — 🔑 IAM Least Privilege
 
+![Capa do capítulo 01 — IAM Least Privilege](../imagens/cover-01.jpg)
+
 **Arco:** Identidade
 **Conceito:** Policy estática (RBAC)
 **Custo:** 🟢

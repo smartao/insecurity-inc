@@ -1,6 +1,6 @@
 # 🔓 insecurity-inc
 
-![Insecurity Inc. — "Same Business. Less Security." Quadrinho satírico de um escritório de tech: CEO comemorando "more features, less security" enquanto a equipe entra em pânico ao lado de um quadro branco listando más práticas de segurança na AWS (S3 público, Security Group 0.0.0.0/0, root user em uso, sem MFA, chaves no código, CloudTrail desabilitado, sem backup, sem monitoramento) prestes a ir para produção.](./imagens/insecurity-inc-capa-02-13092026.png)
+![Insecurity Inc. — "Same Business. Less Security." Quadrinho satírico de um escritório de tech: CEO comemorando "more features, less security" enquanto a equipe entra em pânico ao lado de um quadro branco listando más práticas de segurança na AWS (S3 público, Security Group 0.0.0.0/0, root user em uso, sem MFA, chaves no código, CloudTrail desabilitado, sem backup, sem monitoramento) prestes a ir para produção.](./imagens/insecurity-inc-capa-02-13092026.jpg)
 
 > A Insecurity Inc. acabou de abrir uma conta AWS. Este repositório documenta a jornada de correção das más práticas de segurança até atingir maturidade — cada capítulo é um cenário aplicável em Terraform.
 
