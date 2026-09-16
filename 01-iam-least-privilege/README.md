@@ -4,6 +4,7 @@
 
 **Arco:** Identidade  
 **Conceito:** Policy estática (RBAC)  
+**Well-Architected:** [SEC03-BP02](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_permissions_least_privileges.html)  
 **Custo:** 🟢  
 
 ## 🎬 Cenário

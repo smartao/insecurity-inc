@@ -4,6 +4,7 @@
 
 **Arco:** Fundação  
 **Conceito:** Safety net  
+**Well-Architected:** [SEC04-BP03](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_detect_investigate_events_security_alerts.html)  
 **Custo:** 🟢
 
 ## 🎬 Cenário

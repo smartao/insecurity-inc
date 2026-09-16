@@ -4,6 +4,7 @@
 
 **Arco:** Identidade  
 **Conceito:** Policy dinâmica por tags  
+**Well-Architected:** [SEC02-BP06](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_identities_groups_attributes.html)  
 **Custo:** 🟢  
 **Depende de:** capítulo(s) 01  
 

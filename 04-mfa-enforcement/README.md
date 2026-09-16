@@ -4,6 +4,7 @@
 
 **Arco:** Identidade  
 **Conceito:** Condição de política exigindo MFA  
+**Well-Architected:** [SEC02-BP01](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_identities_enforce_mechanisms.html)  
 **Custo:** 🟢  
 
 ## 🎬 Cenário

@@ -4,6 +4,7 @@
 
 **Arco:** Identidade  
 **Conceito:** Acesso externo não intencional  
+**Well-Architected:** [SEC03-BP07](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_permissions_analyze_cross_account.html)  
 **Custo:** 🟢  
 
 ## 🎬 Cenário
