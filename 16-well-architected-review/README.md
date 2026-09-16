@@ -1,9 +1,10 @@
 # 16 — 🏁 Well-Architected Review
 
-**Arco:** Fechamento
-**Conceito:** Auditoria final
-**Custo:** 🟢
-**Depende de:** capítulo(s) todos anteriores
+**Arco:** Fechamento  
+**Conceito:** Auditoria final  
+**Well-Architected:** [Security Pillar](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html) (revisão completa via [AWS Well-Architected Tool](https://aws.amazon.com/well-architected-tool/))  
+**Custo:** 🟢  
+**Depende de:** capítulo(s) todos anteriores  
 
 ## 🎯 Objetivo
 

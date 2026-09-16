@@ -1,9 +1,9 @@
 # 12 — 📋 AWS Config
 
-**Arco:** Detecção & Auditoria
-**Conceito:** Compliance contínuo
-**Custo:** 🟡
-
+**Arco:** Detecção & Auditoria  
+**Conceito:** Compliance contínuo  
+**Well-Architected:** [SEC04-BP04](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_detect_investigate_events_noncompliant_resources.html)  
+**Custo:** 🟡  
 
 ## 🎬 Cenário
 

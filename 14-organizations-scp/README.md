@@ -1,9 +1,9 @@
 # 14 — 🚧 Organizations + SCP
 
-**Arco:** Governança (Org)
-**Conceito:** Guardrail do lado da identidade
-**Custo:** 🟢
-
+**Arco:** Governança (Org)  
+**Conceito:** Guardrail do lado da identidade  
+**Well-Architected:** [SEC03-BP05](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_permissions_define_guardrails.html)  
+**Custo:** 🟢  
 
 ## 🎬 Cenário
 

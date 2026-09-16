@@ -1,9 +1,9 @@
 # 06 — 🗝️ KMS
 
-**Arco:** Dados
-**Conceito:** Encryption + Key Policy
-**Custo:** 🟡
-
+**Arco:** Dados  
+**Conceito:** Encryption + Key Policy  
+**Well-Architected:** [SEC08-BP01](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_protect_data_rest_key_mgmt.html)  
+**Custo:** 🟡  
 
 ## 🎬 Cenário
 

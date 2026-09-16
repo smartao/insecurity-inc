@@ -1,9 +1,9 @@
 # 08 — 🔏 Secrets Manager
 
-**Arco:** Dados
-**Conceito:** Secrets rotacionados
-**Custo:** 🟡
-
+**Arco:** Dados  
+**Conceito:** Secrets rotacionados  
+**Well-Architected:** [SEC02-BP03](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_identities_secrets.html)  
+**Custo:** 🟡  
 
 ## 🎬 Cenário
 

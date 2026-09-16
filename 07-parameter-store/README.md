@@ -1,9 +1,9 @@
 # 07 — ⚙️ Parameter Store
 
-**Arco:** Dados
-**Conceito:** Config segura
-**Custo:** 🟢
-
+**Arco:** Dados  
+**Conceito:** Config segura  
+**Well-Architected:** [SEC08-BP02](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_protect_data_rest_encrypt.html)  
+**Custo:** 🟢  
 
 ## 🎬 Cenário
 

@@ -1,9 +1,9 @@
 # 09 — 🧱 Security Groups
 
-**Arco:** Rede
-**Conceito:** Regras de rede
-**Custo:** 🟢
-
+**Arco:** Rede  
+**Conceito:** Regras de rede  
+**Well-Architected:** [SEC05-BP02](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_network_protection_layered.html)  
+**Custo:** 🟢  
 
 ## 🎬 Cenário
 

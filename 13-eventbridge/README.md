@@ -1,9 +1,10 @@
 # 13 — ⚡ EventBridge
 
-**Arco:** Detecção & Auditoria
-**Conceito:** Detecção baseada em eventos
-**Custo:** 🟢
-**Depende de:** capítulo(s) 12
+**Arco:** Detecção & Auditoria  
+**Conceito:** Detecção baseada em eventos  
+**Well-Architected:** [SEC04-BP03](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_detect_investigate_events_security_alerts.html)  
+**Custo:** 🟢  
+**Depende de:** capítulo(s) 12  
 
 ## 🎬 Cenário
 

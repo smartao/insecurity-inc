@@ -1,9 +1,9 @@
 # 10 — 🌊 VPC Flow Logs
 
-**Arco:** Rede
-**Conceito:** Visibilidade de tráfego
-**Custo:** 🟢
-
+**Arco:** Rede  
+**Conceito:** Visibilidade de tráfego  
+**Well-Architected:** [SEC04-BP01](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_detect_investigate_events_app_service_logging.html)  
+**Custo:** 🟢  
 
 ## 🎬 Cenário
 

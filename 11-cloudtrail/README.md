@@ -1,9 +1,9 @@
 # 11 — 🕵️ CloudTrail
 
-**Arco:** Detecção & Auditoria
-**Conceito:** Auditoria de API
-**Custo:** 🟢
-
+**Arco:** Detecção & Auditoria  
+**Conceito:** Auditoria de API  
+**Well-Architected:** [SEC04-BP01](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_detect_investigate_events_app_service_logging.html)  
+**Custo:** 🟢  
 
 ## 🎬 Cenário
 
