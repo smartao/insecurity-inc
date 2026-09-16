@@ -1,6 +1,6 @@
 # 03 — 🔍 IAM Access Analyzer
 
-![Capa do capítulo 03 — IAM Access Analyzer](../imagens/cover-03.jpg)
+![Capa do capítulo 03 — IAM Access Analyzer](../imagens/cover-S01E03.jpg)
 
 **Arco:** Identidade  
 **Conceito:** Acesso externo não intencional  

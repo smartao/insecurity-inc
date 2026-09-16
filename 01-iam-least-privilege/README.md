@@ -1,6 +1,6 @@
 # 01 — 🔑 IAM Least Privilege
 
-![Capa do capítulo 01 — IAM Least Privilege](../imagens/cover-01.jpg)
+![Capa do capítulo 01 — IAM Least Privilege](../imagens/cover-S01E01.jpg)
 
 **Arco:** Identidade  
 **Conceito:** Policy estática (RBAC)  

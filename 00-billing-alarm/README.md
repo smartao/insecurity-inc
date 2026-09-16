@@ -1,6 +1,6 @@
 # 00 — 💰 Billing Alarm & Budgets
 
-![Capa do capítulo 00 — Billing Alarm & Budgets](../imagens/cover-00.jpg)
+![Capa do capítulo 00 — Billing Alarm & Budgets](../imagens/cover-S01E00.jpg)
 
 **Arco:** Fundação  
 **Conceito:** Safety net  

@@ -1,6 +1,6 @@
 # 02 — 🏷️ ABAC
 
-![Capa do capítulo 02 — ABAC](../imagens/cover-02.jpg)
+![Capa do capítulo 02 — ABAC](../imagens/cover-S01E02.jpg)
 
 **Arco:** Identidade  
 **Conceito:** Policy dinâmica por tags  

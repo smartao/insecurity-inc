@@ -1,6 +1,6 @@
 # 04 — 🔐 MFA Enforcement
 
-![Capa do capítulo 04 — MFA Enforcement](../imagens/cover-04.jpg)
+![Capa do capítulo 04 — MFA Enforcement](../imagens/cover-S01E04.jpg)
 
 **Arco:** Identidade  
 **Conceito:** Condição de política exigindo MFA  
