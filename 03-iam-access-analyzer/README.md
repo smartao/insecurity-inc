@@ -4,7 +4,7 @@
 
 **Arco:** Identidade  
 **Conceito:** Acesso externo não intencional  
-**Well-Architected:** [SEC03-BP07](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_permissions_analyze_cross_account.html)  
+**Well-Architected:** [SEC03-BP07](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_permissions_analyze_cross_account.html), [SEC03-BP09](https://docs.aws.amazon.com/wellarchitected/latest/framework/sec_permissions_share_securely_third_party.html)    
 **Custo:** 🟢  
 
 ## 🎬 Cenário

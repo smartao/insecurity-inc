@@ -4,7 +4,7 @@
 
 **Arco:** Dados  
 **Conceito:** Bucket Policy / Public Access Block  
-**Well-Architected:** [SEC08-BP04](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_protect_data_rest_access_control.html)  
+**Well-Architected:** [SEC08-BP04](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_protect_data_rest_access_control.html), [SEC09-BP02](https://docs.aws.amazon.com/wellarchitected/latest/framework/sec_protect_data_transit_encrypt.html)  
 **Custo:** 🟢  
 
 ## 🎬 Cenário
