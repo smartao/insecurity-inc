@@ -47,3 +47,4 @@ terraform.rc
 # Custom
 plan.out
 plan.txt
+roadmap*.md
