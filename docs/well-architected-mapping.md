@@ -13,6 +13,9 @@ geral do pilar inteiro e não tem BP específico associado.
 
 > Atualizar esta tabela sempre que um novo capítulo citar uma BP nova, ou
 > quando uma BP existente ganhar uma citação adicional em outro capítulo.
+>
+> Roadmap completo da série (Temporada 1 + plano das Temporadas 2 e 3):
+> [`roadmap-temporadas.md`](./roadmap-temporadas.md).
 
 ## 1. Security foundations (SEC01) — 0/8 usados
 
