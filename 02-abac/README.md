@@ -177,6 +177,9 @@ aws iam create-access-key --user-name insecurity-inc-engineering-analyst > /tmp/
 #    novo não herda a região do profile default, e sem ela a CLI falha com
 #    "NoRegion: You must specify a region")
 REGION=$(aws configure get region)
+# Guardrail: avisa se a variável ficou vazia (ou "None", que é o que o --query
+# da AWS CLI devolve quando não encontra nada).
+[ -n "$REGION" ] && [ "$REGION" != None ] || echo "REGION VAZIA -- não continue sem corrigir (nenhuma região configurada: defina REGION manualmente, ex.: REGION=us-east-1)"
 
 aws configure set aws_access_key_id "$(jq -r .AccessKey.AccessKeyId /tmp/marketing-key.json)" --profile marketing-analyst
 aws configure set aws_secret_access_key "$(jq -r .AccessKey.SecretAccessKey /tmp/marketing-key.json)" --profile marketing-analyst
@@ -191,6 +194,14 @@ MARKETING_ID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=insecur
   --query 'Reservations[0].Instances[0].InstanceId' --output text)
 ENGINEERING_ID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=insecurity-inc-engineering-app \
   --query 'Reservations[0].Instances[0].InstanceId' --output text)
+
+# Guardrail: avisa se alguma variável acima ficou vazia (ou "None", que é o que
+# o --query da AWS CLI devolve quando não encontra nenhuma instância). (O eval
+# só lê cada variável pelo nome -- funciona igual em bash e zsh.)
+for v in MARKETING_ID ENGINEERING_ID; do
+  eval "val=\$$v"
+  [ -n "$val" ] && [ "$val" != None ] || echo "$v VAZIA -- não continue sem corrigir (confira o login/região AWS e se o capítulo foi aplicado)"
+done
 
 # 4. A analista de marketing só consegue reiniciar a própria instância
 aws ec2 describe-instances --profile marketing-analyst > /dev/null && echo "describe: ok (Resource *)"

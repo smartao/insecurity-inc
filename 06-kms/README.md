@@ -166,6 +166,16 @@ REGION=$(aws configure get region)
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 CALLER_ARN=$(aws sts get-caller-identity --query Arn --output text)
 
+# Guardrail: avisa se alguma variável acima ficou vazia (ou "None", que é o que
+# o --query da AWS CLI devolve quando não encontra nada). Sem ele, rodar o bloco
+# fora da pasta do capítulo passa em branco: o "terraform output" não acha o
+# state e a variável fica vazia sem erro. (O eval só lê cada variável pelo
+# nome -- funciona igual em bash e zsh.)
+for v in KEY_ID BUCKET_NAME REGION ACCOUNT_ID CALLER_ARN; do
+  eval "val=\$$v"
+  [ -n "$val" ] && [ "$val" != None ] || echo "$v VAZIA -- não continue sem corrigir (rode dentro da pasta do capítulo e confira o login/região AWS)"
+done
+
 # 1. Fluxo legítimo: cifrar e decifrar via S3 continua funcionando
 echo "recibo de teste" > /tmp/receipt.txt
 aws s3 cp /tmp/receipt.txt "s3://${BUCKET_NAME}/receipt-teste.txt"
@@ -242,6 +252,10 @@ sleep 10   # propagação do IAM antes de assumir a role
 ASSUMED=$(aws sts assume-role \
   --role-arn "arn:aws:iam::${ACCOUNT_ID}:role/insecurity-inc-kms-lab-unauthorized" \
   --role-session-name kms-lab-test-1)
+# Guardrail: se o assume-role falhar, ASSUMED fica vazio, os "export" abaixo
+# exportam credenciais vazias e a AWS CLI cai de volta na SUA identidade -- os
+# próximos comandos rodariam como você, não como a role, e o teste mentiria.
+[ -n "$ASSUMED" ] || echo "ASSUMED VAZIO -- o assume-role falhou; não continue: os próximos comandos rodariam como VOCÊ, não como a role"
 export AWS_ACCESS_KEY_ID=$(echo "$ASSUMED" | jq -r .Credentials.AccessKeyId)
 export AWS_SECRET_ACCESS_KEY=$(echo "$ASSUMED" | jq -r .Credentials.SecretAccessKey)
 export AWS_SESSION_TOKEN=$(echo "$ASSUMED" | jq -r .Credentials.SessionToken)
@@ -306,6 +320,7 @@ echo "Sem erro -- a AWS aceitou uma key policy com Principal público normalment
 ASSUMED=$(aws sts assume-role \
   --role-arn "arn:aws:iam::${ACCOUNT_ID}:role/insecurity-inc-kms-lab-unauthorized" \
   --role-session-name kms-lab-test-2)
+[ -n "$ASSUMED" ] || echo "ASSUMED VAZIO -- o assume-role falhou; não continue: os próximos comandos rodariam como VOCÊ, não como a role"
 export AWS_ACCESS_KEY_ID=$(echo "$ASSUMED" | jq -r .Credentials.AccessKeyId)
 export AWS_SECRET_ACCESS_KEY=$(echo "$ASSUMED" | jq -r .Credentials.SecretAccessKey)
 export AWS_SESSION_TOKEN=$(echo "$ASSUMED" | jq -r .Credentials.SessionToken)
@@ -336,6 +351,7 @@ aws kms put-key-policy --key-id "$KEY_ID" --policy-name default \
 ASSUMED=$(aws sts assume-role \
   --role-arn "arn:aws:iam::${ACCOUNT_ID}:role/insecurity-inc-kms-lab-unauthorized" \
   --role-session-name kms-lab-test-3)
+[ -n "$ASSUMED" ] || echo "ASSUMED VAZIO -- o assume-role falhou; não continue: os próximos comandos rodariam como VOCÊ, não como a role"
 export AWS_ACCESS_KEY_ID=$(echo "$ASSUMED" | jq -r .Credentials.AccessKeyId)
 export AWS_SECRET_ACCESS_KEY=$(echo "$ASSUMED" | jq -r .Credentials.SecretAccessKey)
 export AWS_SESSION_TOKEN=$(echo "$ASSUMED" | jq -r .Credentials.SessionToken)

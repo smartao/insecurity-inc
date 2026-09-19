@@ -173,6 +173,10 @@ aws iam create-login-profile \
   --password 'UmaSenhaForteAqui123!'
 
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+# Guardrail: avisa se a variável ficou vazia (ou "None", que é o que o --query
+# da AWS CLI devolve quando não encontra nada) -- sem isto, a URL abaixo sairia
+# quebrada ("https://.signin.aws.amazon.com/console") sem nenhum erro.
+[ -n "$ACCOUNT_ID" ] && [ "$ACCOUNT_ID" != None ] || echo "ACCOUNT_ID VAZIA -- não continue sem corrigir (confira o login AWS)"
 echo "https://${ACCOUNT_ID}.signin.aws.amazon.com/console"
 ```
 
@@ -189,6 +193,9 @@ O passo a passo acima prova o efeito no Console. Para provar que a negação tam
 aws iam create-access-key --user-name insecurity-inc-console-analyst > /tmp/console-analyst-key.json
 
 REGION=$(aws configure get region)
+# Guardrail: avisa se a variável ficou vazia (ou "None", que é o que o --query
+# da AWS CLI devolve quando não encontra nada).
+[ -n "$REGION" ] && [ "$REGION" != None ] || echo "REGION VAZIA -- não continue sem corrigir (nenhuma região configurada: defina REGION manualmente, ex.: REGION=us-east-1)"
 aws configure set aws_access_key_id "$(jq -r .AccessKey.AccessKeyId /tmp/console-analyst-key.json)" --profile console-analyst-raw
 aws configure set aws_secret_access_key "$(jq -r .AccessKey.SecretAccessKey /tmp/console-analyst-key.json)" --profile console-analyst-raw
 aws configure set region "$REGION" --profile console-analyst-raw
@@ -200,6 +207,7 @@ aws ec2 describe-instances --profile console-analyst-raw   # AccessDenied
 # 3. Pegar o ARN do dispositivo MFA criado no passo 2 da seção anterior
 MFA_ARN=$(aws iam list-mfa-devices --user-name insecurity-inc-console-analyst \
   --query 'MFADevices[0].SerialNumber' --output text)
+[ -n "$MFA_ARN" ] && [ "$MFA_ARN" != None ] || echo "MFA_ARN VAZIA -- não continue sem corrigir (o dispositivo MFA foi configurado no passo 2 da seção anterior?)"
 
 # 4. Trocar as credenciais de longa duração por uma sessão temporária
 #    autenticada com MFA -- gere um código atual no app autenticador e
@@ -226,6 +234,9 @@ aws iam delete-access-key --user-name insecurity-inc-console-analyst \
 
 MFA_ARN=$(aws iam list-mfa-devices --user-name insecurity-inc-console-analyst \
   --query 'MFADevices[0].SerialNumber' --output text)
+# Guardrail: avisa se a variável ficou vazia (ou "None", que é o que o --query
+# da AWS CLI devolve quando não encontra nada).
+[ -n "$MFA_ARN" ] && [ "$MFA_ARN" != None ] || echo "MFA_ARN VAZIA -- não continue sem corrigir (o dispositivo MFA foi mesmo configurado? se não, pule os dois comandos de MFA abaixo)"
 aws iam deactivate-mfa-device --user-name insecurity-inc-console-analyst --serial-number "$MFA_ARN"
 aws iam delete-virtual-mfa-device --serial-number "$MFA_ARN"
 

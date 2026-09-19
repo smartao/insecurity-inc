@@ -166,6 +166,10 @@ aws iam create-login-profile \
 
 # 2. Descobrir a URL de login da conta
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+# Guardrail: avisa se a variável ficou vazia (ou "None", que é o que o --query
+# da AWS CLI devolve quando não encontra nada) -- sem isto, a URL abaixo sairia
+# quebrada ("https://.signin.aws.amazon.com/console") sem nenhum erro.
+[ -n "$ACCOUNT_ID" ] && [ "$ACCOUNT_ID" != None ] || echo "ACCOUNT_ID VAZIA -- não continue sem corrigir (confira o login AWS)"
 echo "https://${ACCOUNT_ID}.signin.aws.amazon.com/console"
 ```
 

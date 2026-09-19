@@ -143,6 +143,10 @@ aws iam create-role \
 #    e listar findings de IAM Role
 ANALYZER_ARN=$(aws accessanalyzer list-analyzers \
   --query "analyzers[?name=='insecurity-inc-external-access-analyzer'].arn" --output text)
+# Guardrail: avisa se a variável ficou vazia (ou "None", que é o que o --query
+# da AWS CLI devolve quando não encontra nada) -- por exemplo, se o analyzer
+# deste capítulo não foi aplicado nesta região.
+[ -n "$ANALYZER_ARN" ] && [ "$ANALYZER_ARN" != None ] || echo "ANALYZER_ARN VAZIA -- não continue sem corrigir (confira o login/região AWS e se o capítulo foi aplicado)"
 
 aws accessanalyzer list-findings \
   --analyzer-arn "$ANALYZER_ARN" \

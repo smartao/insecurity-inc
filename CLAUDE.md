@@ -70,6 +70,18 @@ Regras para manter os três caminhos coerentes:
 - "Como destruir" também precisa de equivalente CLI e Console, não só `terraform destroy` — quem seguiu o caminho manual não pode ficar com recursos órfãos gerando custo.
 - CLI e Console são documentação revisada por leitura, não validada em pipeline — Terraform continua sendo o que é de fato testado antes de cada `destroy`.
 
+## Guardrail nos blocos "Como testar"
+
+Quem cola um bloco de teste fora da pasta do capítulo (ou com o login AWS expirado) fica com variáveis vazias sem nenhum erro — `terraform output -raw` fora da pasta, por exemplo, sai com código 0 e valor vazio, então nem `set -e` nem `||` pegam. Por isso, todo bloco de "Como testar" que carrega variável via `$(...)` (`terraform output`, `aws sts get-caller-identity`, `aws configure get region`, `--query ...`) precisa de uma checagem logo depois da carga, avisando quando o valor vier vazio:
+
+- Tratar `None` como vazio: é o que `--query ... --output text` devolve quando não acha nada.
+- Uma variável: `[ -n "$X" ] && [ "$X" != None ] || echo "X VAZIA -- não continue sem corrigir (<dica da causa provável>)"` — mensagem em caixa alta, no mesmo tom do "BACKUP VAZIO" do cap. 06.
+- Várias variáveis: `for v in A B C; do eval "val=\$$v"; <mesma checagem com $val e $v>; done`. O `eval` só lê a variável pelo nome e funciona igual em bash e zsh — `${!v}` (bash) e `${(P)v}` (zsh) não são portáveis entre os dois.
+- `ASSUMED=$(aws sts assume-role ...)` também precisa: se falhar, os `export AWS_*` viram strings vazias e a AWS CLI cai de volta na identidade do próprio usuário — os comandos seguintes rodariam como você, não como a role, e o resultado do teste mentiria (ou pior: um `put-parameter` de "teste negado" sobrescreveria o valor de verdade). Usar `[ -n "$ASSUMED" ] || echo "ASSUMED VAZIO -- o assume-role falhou; não continue: ..."`.
+- O guardrail só avisa, não interrompe: não dá para parar um bloco colado num shell interativo sem fechar o terminal.
+
+Implementação de referência: `06-kms/README.md`.
+
 ## Estrutura de pastas
 
 Uma pasta por capítulo (`NN-nome-do-capitulo/`, ex.: `05-s3-security/`), cada uma autocontida:

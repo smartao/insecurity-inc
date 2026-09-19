@@ -115,6 +115,15 @@ O objetivo é provar, na prática, as quatro coisas que a correção garante: ac
 BUCKET_NAME=<nome do bucket criado acima>
 REGION=$(aws configure get region)
 
+# Guardrail: avisa se alguma variável acima ficou vazia (ou "None", que é o que
+# o --query da AWS CLI devolve quando não encontra nada) -- inclusive se você
+# esqueceu de trocar o placeholder do BUCKET_NAME. (O eval só lê cada variável
+# pelo nome -- funciona igual em bash e zsh.)
+for v in BUCKET_NAME REGION; do
+  eval "val=\$$v"
+  [ -n "$val" ] && [ "$val" != None ] || echo "$v VAZIA -- não continue sem corrigir (BUCKET_NAME é o nome real do bucket? REGION está configurada?)"
+done
+
 # 0. Sanity check: sem nenhuma concessão pública, acesso anônimo já deveria
 #    falhar por padrão (nada de especial deste capítulo ainda, só a postura
 #    privada normal de um bucket S3)
@@ -167,6 +176,9 @@ curl -s -o /dev/null -w "%{http_code}\n" \
 #    único objeto, e é ELA que vai no e-mail do cliente -- não o link "cru"
 #    usado no passo 0.
 PRESIGNED_URL=$(aws s3 presign "s3://${BUCKET_NAME}/receipt-teste.txt" --expires-in 300)
+# Guardrail: avisa se a variável ficou vazia (ou "None", que é o que o --query
+# da AWS CLI devolve quando não encontra nada).
+[ -n "$PRESIGNED_URL" ] && [ "$PRESIGNED_URL" != None ] || echo "PRESIGNED_URL VAZIA -- não continue sem corrigir (confira o login AWS e o BUCKET_NAME)"
 echo "$PRESIGNED_URL"
 
 # 7. Simular o cliente: baixar via a presigned URL, sem nenhuma credencial
