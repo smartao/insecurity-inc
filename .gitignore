@@ -43,8 +43,11 @@ terraform.rc
 # Optional: ignore plan files saved before destroying Terraform configuration
 # Uncomment the line below if you want to ignore planout files.
 # planout
-
-# Custom
 plan.out
 plan.txt
+
+# Custom Projeto
 roadmap*.md
+
+# Artefato gerado pelo data "archive_file" do capítulo 08
+08-secrets-manager/rotation.zip
