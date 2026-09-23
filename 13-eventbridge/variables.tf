@@ -13,3 +13,9 @@ variable "tags" {
     chapter = "13"
   }
 }
+
+variable "alert_email" {
+  description = "E-mail que recebe os alertas de NON_COMPLIANT do AWS Config (via SNS)."
+  type        = string
+  default     = "sergei.martao@gmail.com"
+}
