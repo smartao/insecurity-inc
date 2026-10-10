@@ -1,0 +1,77 @@
+{
+  "securely-operate": {
+    "selected": [
+      "sec_securely_operate_aws_account",
+      "sec_securely_operate_control_objectives",
+      "sec_securely_operate_reduce_management_scope",
+      "sec_securely_operate_automate_security_controls"
+    ],
+    "notes": "ATENDE. BP02: root com MFA e sem access key nas duas contas (conferido ao vivo); SCP DenyRootUser na conta-membro (cap. 14, sem teste ponta a ponta). Falta alerta de uso do root e contatos alternativos. BP03: cada controle mapeado para CIS/Security Hub e validado por regra do Config (cap. 12) — parcial, 10 regras. BP05: serviços gerenciados (Secrets Manager, Lambda, Access Analyzer, regras gerenciadas do Config). BP06: tudo em Terraform; SCP/RCP herdadas por OU/conta (caps. 14/15). NÃO ATENDE. BP01: caps. 00–13 rodaram na management account. BP04: sem processo para acompanhar ameaças. BP07: sem threat model; cada Cenário é uma ameaça isolada. BP08: RCP adotada, mas sem cadência de revisão."
+  },
+  "identities": {
+    "selected": [
+      "sec_identities_secrets",
+      "sec_identities_groups_attributes"
+    ],
+    "notes": "ATENDE. BP03: Secrets Manager com rotação de 30 dias e senha inicial write-only, fora do state (cap. 08). BP06: grupos (cap. 01) e ABAC por tag (cap. 02). NÃO ATENDE. BP01: a Force MFA do cap. 04 vale só para o grupo de exemplo; os usuários que operam as contas não têm MFA e nenhuma das duas contas tem password policy. BP02: quem roda o Terraform usa access key estática de admin. BP04: IAM Identity Center não existe (apagado no incidente do cap. 14, nunca recriado). BP05: chaves de 5 a 7 meses, sem rotação nem credential report."
+  },
+  "permissions": {
+    "selected": [
+      "sec_permissions_define",
+      "sec_permissions_least_privileges",
+      "sec_permissions_define_guardrails",
+      "sec_permissions_share_securely_third_party",
+      "sec_permissions_analyze_cross_account"
+    ],
+    "notes": "ATENDE. BP01/BP02: cada capítulo parte do que a função exige (plantão reinicia 2 instâncias, backend lê 1 secret pelo ARN completo, roles de serviço com aws:SourceArn) — caps. 01, 07, 08, 10, 11. Exceção: o operador humano é admin. BP05: SCP (cap. 14) e RCP (cap. 15) na conta-membro. BP07: IAM Access Analyzer (cap. 03). BP09: External ID contra confused deputy (cap. 03). NÃO ATENDE. BP03: sem break-glass. BP04: sem poda de permissão não usada. BP06: sem ciclo de vida de acesso. BP08: sem RAM; o perímetro da RCP só libera identidades da organização."
+  },
+  "detect-investigate-events": {
+    "selected": [
+      "sec_detect_investigate_events_app_service_logging"
+    ],
+    "notes": "ATENDE. BP01: CloudTrail multi-região com validação de integridade e cópia no CloudWatch Logs (cap. 11); VPC Flow Logs com tráfego ALL (cap. 10). Ressalvas: sem data events, retenção de laboratório (1 dia). NÃO ATENDE. BP02: sem conta de log archive nem Security Hub; cada log fica no bucket do próprio capítulo. BP03: o cap. 13 captura e formata uma fonte só (Config), não correlaciona nem enriquece — o próprio cap. 13 registra isso. BP04: o Config detecta e o EventBridge avisa por e-mail, mas não existe remediação definida (runbook/SSM Automation) — dívida do cap. 12."
+  },
+  "network-protection": {
+    "selected": [
+      "sec_network_protection_layered"
+    ],
+    "notes": "ATENDE. BP02: um SG por camada, referência SG-para-SG, saída restrita, nenhuma porta 22, default SG zerado (cap. 09). NÃO ATENDE. BP01: uma subnet só, sem separação pública/privada (dívida do cap. 09). BP03: sem WAF nem Network Firewall; a saída 443 para 0.0.0.0/0 da camada app é concessão. BP04: Config + EventBridge detectam SG aberto (caps. 12/13), mas nada protege automaticamente."
+  },
+  "protect-compute": {
+    "selected": [
+      "sec_protect_compute_no"
+    ],
+    "notes": "Nenhum capítulo trata compute. As instâncias EC2 dos caps. 01/02 são placeholders (IMDSv2 obrigatório por padrão da AMI AL2023 — ponto positivo não intencional). A Lambda de rotação do cap. 08 roda código próprio sem nenhum scan. O cap. 09 recomenda Session Manager (BP03), mas não o constrói. Não marcado como N/A: o checkout da Insecurity Inc. tem compute; o repositório é que ainda não chegou lá."
+  },
+  "data-classification": {
+    "selected": [
+      "sec_data_classification_no"
+    ],
+    "notes": "Sem esquema de classificação. Há instinto, não processo: o cap. 06 justifica a CMK porque recibo tem dado pessoal; o cap. 07 deixa a feature flag como String de propósito (\"nem tudo é sensível\"). A retenção de log é definida (1 a 7 dias), mas por custo de laboratório, não pelo ciclo de vida do dado."
+  },
+  "protect-data-rest": {
+    "selected": [
+      "sec_protect_data_rest_key_mgmt",
+      "sec_protect_data_rest_access_control"
+    ],
+    "notes": "ATENDE. BP01: CMK com key policy própria, sem delegação ao IAM, kms:ViaService e rotação (cap. 06). BP04: Block Public Access + Bucket Owner Enforced + bucket policy (cap. 05), key policy (cap. 06), RCP de perímetro (cap. 15). NÃO ATENDE. BP02: os 4 volumes EBS dos caps. 01/02 nasceram sem criptografia (encrypted=false no state) e a criptografia EBS por padrão está desligada nas duas contas; S3, SSM e Secrets Manager cifram por padrão. BP03: nenhuma regra do Config verifica criptografia em repouso."
+  },
+  "protect-data-transit": {
+    "selected": [
+      "sec_protect_data_transit_encrypt"
+    ],
+    "notes": "ATENDE. BP02: DenyInsecureTransport no bucket (cap. 05), promovido a toda a conta-membro pela RCP EnforceSecureTransport (cap. 15); a camada web só aceita 443 (cap. 09). NÃO ATENDE. BP01: a camada web aceita 443, mas não existe certificado gerenciado (ACM) para servi-lo. BP03: tráfego app→banco sem autenticação mútua."
+  },
+  "incident-response": {
+    "selected": [
+      "sec_incident_response_no"
+    ],
+    "notes": "Nenhum plano, playbook, acesso pré-provisionado ou simulação. O mais próximo é a Nota de incidente do cap. 14 (Organization apagada por terraform destroy), um post-mortem de verdade — mas um post-mortem não é um framework (BP08). Os logs dos caps. 10/11 seriam a matéria-prima forense (BP03), se não fossem destruídos ao fim de cada laboratório."
+  },
+  "application-security": {
+    "selected": [
+      "sec_appsec_no"
+    ],
+    "notes": "O único código de aplicação é a Lambda de rotação (cap. 08), além do próprio Terraform. Deploy é terraform apply manual, do notebook, com credencial de admin (BP06 não atendido); sem pipeline, sem scan de IaC, sem revisão obrigatória. Não marcado como N/A pelo mesmo motivo de SEC06."
+  }
+}

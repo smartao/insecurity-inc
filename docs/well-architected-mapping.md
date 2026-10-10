@@ -8,8 +8,13 @@ READMEs).
 
 A estrutura oficial tem **7 áreas**, **11 perguntas (SEC01–SEC11)** e **63
 best practices**. Hoje o repositório cita **15 de 63** BPs, distribuídas em
-6 das 11 perguntas. O capítulo 16 (Well-Architected Review) faz uma revisão
+7 das 11 perguntas. O capítulo 16 (Well-Architected Review) faz uma revisão
 geral do pilar inteiro e não tem BP específico associado.
+
+**Citar não é atender.** Este arquivo mede citação, ou seja, o que cada
+capítulo diz que trata. A revisão formal do [capítulo 16](../16-well-architected-review/README.md)
+mede atendimento e chega a 16 de 63, das quais 12 coincidem com as citações
+abaixo. Ver "Citado × atendido" no final.
 
 > Atualizar esta tabela sempre que um novo capítulo citar uma BP nova, ou
 > quando uma BP existente ganhar uma citação adicional em outro capítulo.
@@ -17,13 +22,13 @@ geral do pilar inteiro e não tem BP específico associado.
 > Roadmap completo da série (Temporada 1 + plano das Temporadas 2 e 3):
 > [`roadmap-temporadas.md`](./roadmap-temporadas.md).
 
-## 1. Security foundations (SEC01) — 0/8 usados
+## 1. Security foundations (SEC01) — 1/8 usados
 
 | BP | Título | Resumo | Status |
 |---|---|---|---|
 | [SEC01-BP01](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_securely_operate_multi_accounts.html) | Separate workloads using accounts | Isolar ambientes/workloads em contas AWS separadas como boundary primário de segurança | ⬜ Disponível |
 | [SEC01-BP02](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_securely_operate_aws_account.html) | Secure account root user and properties | Proteger o root user (MFA, credenciais não usadas no dia a dia, regra de dois responsáveis) | ⬜ Disponível |
-| [SEC01-BP03](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_securely_operate_control_objectives.html) | Identify and validate control objectives | Definir objetivos de controle de segurança alinhados a requisitos regulatórios/organizacionais | ⬜ Disponível |
+| [SEC01-BP03](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_securely_operate_control_objectives.html) | Identify and validate control objectives | Definir objetivos de controle de segurança alinhados a requisitos regulatórios/organizacionais | ✅ Cap. 12 (AWS Config) |
 | [SEC01-BP04](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_securely_operate_updated_threats.html) | Stay up to date with security threats and recommendations | Acompanhar continuamente novas ameaças e recomendações (AWS Security Bulletins, feeds de inteligência) | ⬜ Disponível |
 | [SEC01-BP05](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_securely_operate_reduce_management_scope.html) | Reduce security management scope | Usar serviços gerenciados/serverless para reduzir a superfície que você precisa proteger diretamente | ⬜ Disponível |
 | [SEC01-BP06](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_securely_operate_automate_security_controls.html) | Automate deployment of standard security controls | Automatizar (IaC) a aplicação de controles de segurança padrão em novos recursos/contas | ⬜ Disponível |
@@ -32,7 +37,8 @@ geral do pilar inteiro e não tem BP específico associado.
 
 > Os capítulos 14/15 (Organizations, SCP/RCP) tocam indiretamente em
 > SEC01-BP01 (separação de contas), mas o repo cita SEC03-BP05 como BP
-> primário desses capítulos — SEC01 continua sem citação própria.
+> primário desses capítulos. A única citação própria de SEC01 é a BP03, no
+> cabeçalho do capítulo 12.
 
 ## 2. Identity management (SEC02) — 3/6 usados
 
@@ -59,14 +65,14 @@ geral do pilar inteiro e não tem BP específico associado.
 | [SEC03-BP08](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_permissions_share_securely.html) | Share resources securely within your organization | Compartilhar recursos entre contas da própria organização de forma segura (ex.: RAM) | ⬜ Disponível |
 | [SEC03-BP09](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_permissions_share_securely_third_party.html) | Share resources securely with a third party | Mitigar confused deputy em acesso de terceiros (ex.: External ID único) | ✅ Cap. 03 (External ID, citado no corpo) |
 
-## 4. Detection (SEC04) — 3/4 usados
+## 4. Detection (SEC04) — 2/4 usados
 
 | BP | Título | Resumo | Status |
 |---|---|---|---|
 | [SEC04-BP01](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_detect_investigate_events_app_service_logging.html) | Configure service and application logging | Habilitar logging nos serviços/aplicações como base de qualquer detecção | ✅ Cap. 10 (VPC Flow Logs), Cap. 11 (CloudTrail) |
 | [SEC04-BP02](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_detect_investigate_events_logs.html) | Capture logs, findings, and metrics in standardized locations | Centralizar logs/findings/métricas em locais padronizados para análise | ⬜ Disponível |
 | [SEC04-BP03](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_detect_investigate_events_security_alerts.html) | Correlate and enrich security alerts | Correlacionar e enriquecer alertas para reduzir ruído e priorizar investigação | ✅ Cap. 00 (Billing Alarm), Cap. 13 (EventBridge) |
-| [SEC04-BP04](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_detect_investigate_events_noncompliant_resources.html) | Initiate remediation for non-compliant resources | Acionar remediação (manual ou automática) quando um recurso sai de compliance | ✅ Cap. 12 (AWS Config) |
+| [SEC04-BP04](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/sec_detect_investigate_events_noncompliant_resources.html) | Initiate remediation for non-compliant resources | Acionar remediação (manual ou automática) quando um recurso sai de compliance | ⬜ Disponível (cap. 12 cita como dívida: só detecta, não remedia) |
 
 ## 5. Protecting networks (SEC05) — 1/4 usados
 
@@ -153,13 +159,34 @@ geral do pilar inteiro e não tem BP específico associado.
 ## Onde o repo já pisou fundo vs. onde não chegou
 
 - **Cobertos com múltiplas citações**: SEC03 (permissões) e SEC04
-  (detecção) — 4/9 e 3/4 respectivamente.
-- **Cobertos parcialmente**: SEC02, SEC05, SEC08, SEC09 — cada um com 1 a 3
-  BPs citados de um total pequeno.
-- **Zero cobertura**: SEC01 (foundations), SEC06 (compute), SEC07
-  (classificação de dado), SEC10 (resposta a incidente), SEC11 (appsec) —
-  coerente com o roadmap atual, que é infra/IAM/dados/rede/detecção, sem
-  capítulo de compute, classificação de dado ou resposta a incidente.
+  (detecção) — 4/9 e 2/4 respectivamente.
+- **Cobertos parcialmente**: SEC01, SEC02, SEC05, SEC08, SEC09 — cada um com
+  1 a 3 BPs citados de um total pequeno.
+- **Zero cobertura**: SEC06 (compute), SEC07 (classificação de dado), SEC10
+  (resposta a incidente), SEC11 (appsec) — coerente com o roadmap atual, que
+  é infra/IAM/dados/rede/detecção, sem capítulo de compute, classificação de
+  dado ou resposta a incidente.
+
+## Citado × atendido (revisão do capítulo 16)
+
+A [revisão formal](../16-well-architected-review/README.md) julga cada BP
+pelo critério "algum capítulo implementa e testa o núcleo dela", com as
+respostas em [`answers.json`](../16-well-architected-review/answers.json).
+Resultado na Well-Architected Tool: 9 perguntas com risco alto, 2 com risco
+médio.
+
+- **Citadas e atendidas (12)**: SEC01-BP03, SEC02-BP03, SEC02-BP06,
+  SEC03-BP02, SEC03-BP05, SEC03-BP07, SEC03-BP09, SEC04-BP01, SEC05-BP02,
+  SEC08-BP01, SEC08-BP04, SEC09-BP02.
+- **Citadas, mas não atendidas (3)**: SEC02-BP01 (a Force MFA do cap. 04 não
+  cobre quem opera as contas), SEC04-BP03 (o cap. 13 captura uma fonte, não
+  correlaciona) e SEC08-BP02 (volumes EBS sem criptografia nos caps. 01/02).
+- **Atendidas, mas não citadas (4)**: SEC01-BP02 (root com MFA, configurado
+  à mão), SEC01-BP05, SEC01-BP06 e SEC03-BP01.
+
+Antes da revisão, este arquivo atribuía SEC04-BP04 ao cap. 12 e deixava
+SEC01-BP03 sem citação, ao contrário do cabeçalho do próprio capítulo.
+Corrigido junto com o capítulo 16.
 
 ## Referências
 
