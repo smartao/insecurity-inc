@@ -10,33 +10,33 @@ Detalhes de contexto, restrições de custo e decisões de arquitetura estão em
 
 | # | Arco | Capítulo | Custo |
 |---|------|----------|-------|
-| [00](./00-billing-alarm) | Fundação | Billing Alarm & Budgets | 🟢 |
-| [01](./01-iam-least-privilege) | Identidade | IAM Least Privilege | 🟢 |
-| [02](./02-abac) | Identidade | ABAC | 🟢 |
-| [03](./03-iam-access-analyzer) | Identidade | IAM Access Analyzer | 🟢 |
-| [04](./04-mfa-enforcement) | Identidade | MFA Enforcement | 🟢 |
-| [05](./05-s3-security) | Dados | S3 Security | 🟢 |
-| [06](./06-kms) | Dados | KMS | 🟡 |
-| [07](./07-parameter-store) | Dados | Parameter Store | 🟢 |
-| [08](./08-secrets-manager) | Dados | Secrets Manager | 🟡 |
-| [09](./09-security-groups) | Rede | Security Groups | 🟢 |
-| [10](./10-vpc-flow-logs) | Rede | VPC Flow Logs | 🟢 |
-| [11](./11-cloudtrail) | Detecção & Auditoria | CloudTrail | 🟢 |
-| [12](./12-aws-config) | Detecção & Auditoria | AWS Config | 🟡 |
-| [13](./13-eventbridge) | Detecção & Auditoria | EventBridge | 🟢 |
-| [14](./14-organizations-scp) | Governança (Org) | Organizations + SCP | 🟢 |
-| [15](./15-organizations-rcp) | Governança (Org) | Organizations + RCP | 🟢 |
-| [16](./16-well-architected-review) | Fechamento | Well-Architected Review | 🟢 |
+| [00](./temporada01/00-billing-alarm) | Fundação | Billing Alarm & Budgets | 🟢 |
+| [01](./temporada01/01-iam-least-privilege) | Identidade | IAM Least Privilege | 🟢 |
+| [02](./temporada01/02-abac) | Identidade | ABAC | 🟢 |
+| [03](./temporada01/03-iam-access-analyzer) | Identidade | IAM Access Analyzer | 🟢 |
+| [04](./temporada01/04-mfa-enforcement) | Identidade | MFA Enforcement | 🟢 |
+| [05](./temporada01/05-s3-security) | Dados | S3 Security | 🟢 |
+| [06](./temporada01/06-kms) | Dados | KMS | 🟡 |
+| [07](./temporada01/07-parameter-store) | Dados | Parameter Store | 🟢 |
+| [08](./temporada01/08-secrets-manager) | Dados | Secrets Manager | 🟡 |
+| [09](./temporada01/09-security-groups) | Rede | Security Groups | 🟢 |
+| [10](./temporada01/10-vpc-flow-logs) | Rede | VPC Flow Logs | 🟢 |
+| [11](./temporada01/11-cloudtrail) | Detecção & Auditoria | CloudTrail | 🟢 |
+| [12](./temporada01/12-aws-config) | Detecção & Auditoria | AWS Config | 🟡 |
+| [13](./temporada01/13-eventbridge) | Detecção & Auditoria | EventBridge | 🟢 |
+| [14](./temporada01/14-organizations-scp) | Governança (Org) | Organizations + SCP | 🟢 |
+| [15](./temporada01/15-organizations-rcp) | Governança (Org) | Organizations + RCP | 🟢 |
+| [16](./temporada01/16-well-architected-review) | Fechamento | Well-Architected Review | 🟢 |
 
 ### 🏁 Fim da Temporada 1
 
-![Insecurity Inc. — fim da Temporada 1. O time em clima de comemoração: o CEO de óculos escuros ergue a caneca "Still insecure but learning" enquanto os outros olham para uma lousa intitulada "Nossa Jornada na AWS Security", com os capítulos 00 a 16 ligados por setas, de Billing Alarm a Well-Architected Review, e um post-it "17 — What's Next?" para onde o arquiteto aponta. Nas paredes, os recados "Security is a journey... not a checkbox" e "Mesmas pessoas. Novas perspectivas. Mais segurança (esperamos)."; na mesa, livros de compliance, governança e risco, uma pizza e a lista "Next Steps: mais maturidade, menos surpresas, mais valor, Insecurity Inc. continua...".](./imagens/cover-S01E17.jpg)
+![Insecurity Inc. — fim da Temporada 1. O time em clima de comemoração: o CEO de óculos escuros ergue a caneca "Still insecure but learning" enquanto os outros olham para uma lousa intitulada "Nossa Jornada na AWS Security", com os capítulos 00 a 16 ligados por setas, de Billing Alarm a Well-Architected Review, e um post-it "17 — What's Next?" para onde o arquiteto aponta. Nas paredes, os recados "Security is a journey... not a checkbox" e "Mesmas pessoas. Novas perspectivas. Mais segurança (esperamos)."; na mesa, livros de compliance, governança e risco, uma pizza e a lista "Next Steps: mais maturidade, menos surpresas, mais valor, Insecurity Inc. continua...".](./temporada01/imagens/cover-S01E17.jpg)
 
 Do capítulo 00 ao 16, a Insecurity Inc. saiu de uma conta AWS sem nem um alarme de gasto para uma organização com guardrails de identidade (SCP) e de recurso (RCP), trilha de auditoria, compliance contínuo e a primeira revisão formal do pilar de segurança.
 
-Essa mesma revisão, no [capítulo 16](./16-well-architected-review), mostra o tamanho do caminho que falta: 16 das 63 práticas atendidas e 9 das 11 perguntas ainda com risco alto. A caneca do CEO resume bem: *still insecure, but learning*.
+Essa mesma revisão, no [capítulo 16](./temporada01/16-well-architected-review), mostra o tamanho do caminho que falta: 16 das 63 práticas atendidas e 9 das 11 perguntas ainda com risco alto. A caneca do CEO resume bem: *still insecure, but learning*.
 
-**What's next?** As lacunas que pedem capítulo próprio (tirar os workloads da management account, deploy por pipeline sem access key estática, VPC em camadas, plano de resposta a incidente) estão no [Plano de melhoria](./16-well-architected-review/README.md#-plano-de-melhoria) do capítulo 16. Elas são o ponto de partida da Temporada 2, em planejamento.
+**What's next?** As lacunas que pedem capítulo próprio (tirar os workloads da management account, deploy por pipeline sem access key estática, VPC em camadas, plano de resposta a incidente) estão no [Plano de melhoria](./temporada01/16-well-architected-review/README.md#-plano-de-melhoria) do capítulo 16. Elas são o ponto de partida da Temporada 2, em planejamento.
 
 ## 💸 Aviso de custo
 

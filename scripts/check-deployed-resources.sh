@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verifica se algum capítulo (NN-nome/) tem recursos aplicados (state local
+# Verifica se algum capítulo (temporadaNN/NN-nome/) tem recursos aplicados (state local
 # terraform.tfstate != vazio), para evitar esquecer um `terraform destroy`
 # pendente. Cada capítulo é independente e usa state local (sem backend S3).
 #
@@ -29,8 +29,8 @@ command -v jq >/dev/null || { echo "jq não encontrado no PATH." >&2; exit 1; }
 declare -a DIRTY_LABS=()
 declare -A LAB_DETAILS=()
 
-for lab_dir in "$REPO_ROOT"/[0-9][0-9]-*/; do
-    lab="$(basename "$lab_dir")"
+for lab_dir in "$REPO_ROOT"/temporada[0-9][0-9]/[0-9][0-9]-*/; do
+    lab="$(basename "$(dirname "$lab_dir")")/$(basename "$lab_dir")"
     state_file="$lab_dir/terraform.tfstate"
 
     if [[ ! -f "$state_file" ]]; then

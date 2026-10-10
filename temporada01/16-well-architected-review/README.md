@@ -10,7 +10,7 @@
 
 ## 🎬 Cenário
 
-Quinze capítulos depois, o CEO da Insecurity Inc. está tranquilo: cada capítulo corrigiu um erro e cita uma best practice do Well-Architected no cabeçalho. Alguém fez a conta no [mapeamento do repositório](../docs/well-architected-mapping.md): 15 das 63 práticas do pilar de segurança citadas. "Estamos cobertos."
+Quinze capítulos depois, o CEO da Insecurity Inc. está tranquilo: cada capítulo corrigiu um erro e cita uma best practice do Well-Architected no cabeçalho. Alguém fez a conta no [mapeamento do repositório](../../docs/well-architected-mapping.md): 15 das 63 práticas do pilar de segurança citadas. "Estamos cobertos."
 
 Um cliente enterprise manda o questionário de segurança antes de assinar contrato. A primeira pergunta não é sobre bucket, chave ou security group. É "quando foi a última revisão formal da sua arquitetura e quais riscos altos ela deixou em aberto?". A resposta honesta está na lousa da sala: *Last reviewed: Never*. A lista de action items é `???`.
 
@@ -57,7 +57,7 @@ Em negrito, as lacunas que a própria AWS classifica como risco **alto** ("Level
 
 ### Citado × atendido
 
-Comparação com o [mapeamento](../docs/well-architected-mapping.md) **como ele estava antes desta revisão**. Um dos desencontros era erro do próprio mapeamento: ele atribuía SEC04-BP04 ao capítulo 12, cujo cabeçalho cita SEC01-BP03. O mapeamento foi corrigido junto com este capítulo e hoje mostra 12 práticas em comum com a revisão.
+Comparação com o [mapeamento](../../docs/well-architected-mapping.md) **como ele estava antes desta revisão**. Um dos desencontros era erro do próprio mapeamento: ele atribuía SEC04-BP04 ao capítulo 12, cujo cabeçalho cita SEC01-BP03. O mapeamento foi corrigido junto com este capítulo e hoje mostra 12 práticas em comum com a revisão.
 
 | | Práticas |
 | --- | --- |
@@ -272,7 +272,7 @@ aws wellarchitected list-workloads --workload-name-prefix insecurity-inc-securit
 - [The review process](https://docs.aws.amazon.com/wellarchitected/latest/framework/the-review-process.html) — AWS Well-Architected Framework; revisão como processo contínuo, não auditoria única.
 - [AWS Well-Architected Tool User Guide](https://docs.aws.amazon.com/wellarchitected/latest/userguide/intro.html) — workloads, lentes, milestones, relatórios.
 - [AWS CLI — `wellarchitected`](https://docs.aws.amazon.com/cli/latest/reference/wellarchitected/) — `create-workload`, `update-answer`, `get-lens-review`, `create-milestone`, `get-lens-review-report`, `delete-workload`.
-- [docs/well-architected-mapping.md](../docs/well-architected-mapping.md) — o mapeamento por citação que esta revisão confronta (atualizado neste capítulo).
+- [docs/well-architected-mapping.md](../../docs/well-architected-mapping.md) — o mapeamento por citação que esta revisão confronta (atualizado neste capítulo).
 - [answers.json](./answers.json) — as respostas desta revisão, prática por prática.
 - Capítulo [04](../04-mfa-enforcement/README.md) — a Force MFA que os operadores das contas não seguem.
 - Capítulo [09](../09-security-groups/README.md) — o precedente de "decisão de conta, não de laboratório" (default SG da VPC padrão).

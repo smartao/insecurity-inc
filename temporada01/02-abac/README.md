@@ -52,7 +52,7 @@ Este capítulo reestrutura o acesso às instâncias como ABAC, reaproveitando o 
 
 Onboarding de um time novo deixa de significar "escrever uma policy nova": significa criar a instância com a tag `access-project=<time>` e taguear a identidade correspondente. Nenhuma policy é tocada — e por isso o erro de copy-paste do cenário acima deixa de ser possível: não existe um segundo JSON para copiar, nem um ARN para esquecer de trocar.
 
-Essa é também a razão pela qual o [CLAUDE.md](../CLAUDE.md#convenções) deste repositório insiste em tagging consistente desde o capítulo 00/01: ABAC não funciona sem tags corretas e presentes em toda identidade e recurso.
+Essa é também a razão pela qual o [CLAUDE.md](../../CLAUDE.md#convenções) deste repositório insiste em tagging consistente desde o capítulo 00/01: ABAC não funciona sem tags corretas e presentes em toda identidade e recurso.
 
 ## 🧪 Como aplicar
 

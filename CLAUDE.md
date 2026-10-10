@@ -80,11 +80,13 @@ Quem cola um bloco de teste fora da pasta do capítulo (ou com o login AWS expir
 - `ASSUMED=$(aws sts assume-role ...)` também precisa: se falhar, os `export AWS_*` viram strings vazias e a AWS CLI cai de volta na identidade do próprio usuário — os comandos seguintes rodariam como você, não como a role, e o resultado do teste mentiria (ou pior: um `put-parameter` de "teste negado" sobrescreveria o valor de verdade). Usar `[ -n "$ASSUMED" ] || echo "ASSUMED VAZIO -- o assume-role falhou; não continue: ..."`.
 - O guardrail só avisa, não interrompe: não dá para parar um bloco colado num shell interativo sem fechar o terminal.
 
-Implementação de referência: `06-kms/README.md`.
+Implementação de referência: `temporada01/06-kms/README.md`.
 
 ## Estrutura de pastas
 
-Uma pasta por capítulo (`NN-nome-do-capitulo/`, ex.: `05-s3-security/`), cada uma autocontida:
+Uma pasta por temporada na raiz (`temporadaNN/`, ex.: `temporada01/`), com as capas da temporada em `temporadaNN/imagens/cover-SNNEEE.jpg`. O que vale para a série toda fica na raiz: `docs/` (roadmap das temporadas, mapeamento Well-Architected), `scripts/` e a capa geral em `imagens/`. O roadmap da tabela acima é o da Temporada 1; as próximas estão em `docs/roadmap-temporadas.md`.
+
+Dentro da temporada, uma pasta por capítulo (`NN-nome-do-capitulo/`, ex.: `temporada01/05-s3-security/`), cada uma autocontida:
 
 - `README.md` — cenário, problema, correção, como aplicar/destruir (Terraform + CLI + Console), referências.
 - `main.tf`, `variables.tf`, `outputs.tf`, `versions.tf` — apenas a versão corrigida é deployável; o "antes" (prática insegura) é documentado em prosa/snippet no README, não é uma stack Terraform separada (decisão tomada para manter custo e esforço baixos).

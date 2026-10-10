@@ -12,7 +12,7 @@ best practices**. Hoje o repositório cita **15 de 63** BPs, distribuídas em
 geral do pilar inteiro e não tem BP específico associado.
 
 **Citar não é atender.** Este arquivo mede citação, ou seja, o que cada
-capítulo diz que trata. A revisão formal do [capítulo 16](../16-well-architected-review/README.md)
+capítulo diz que trata. A revisão formal do [capítulo 16](../temporada01/16-well-architected-review/README.md)
 mede atendimento e chega a 16 de 63, das quais 12 coincidem com as citações
 abaixo. Ver "Citado × atendido" no final.
 
@@ -169,9 +169,9 @@ abaixo. Ver "Citado × atendido" no final.
 
 ## Citado × atendido (revisão do capítulo 16)
 
-A [revisão formal](../16-well-architected-review/README.md) julga cada BP
+A [revisão formal](../temporada01/16-well-architected-review/README.md) julga cada BP
 pelo critério "algum capítulo implementa e testa o núcleo dela", com as
-respostas em [`answers.json`](../16-well-architected-review/answers.json).
+respostas em [`answers.json`](../temporada01/16-well-architected-review/answers.json).
 Resultado na Well-Architected Tool: 9 perguntas com risco alto, 2 com risco
 médio.
 
